@@ -12,8 +12,8 @@ INTERFACE zif_boe_xlsx_reader
   "!
   "! @parameter file_content | The workbook as it was uploaded
   "! @parameter result       | The rows below row 1 that have a value
-  "! @raising   zcx_boe_file | The file is no workbook, sheet Cheques or a mandatory column is
-  "!                           missing, or no row below row 1 has a value
+  "! @raising   zcx_boe_file | The file is no workbook or the library cannot read it, sheet Cheques
+  "!                           or a mandatory column is missing, or no row below row 1 has a value
   METHODS read
     IMPORTING file_content  TYPE xstring
     RETURNING VALUE(result) TYPE zif_boe_migration=>file_rows

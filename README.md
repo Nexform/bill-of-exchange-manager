@@ -1,5 +1,5 @@
 > **Branch `public` — generated, do not commit here.** GitHub Actions builds it
-> from `main` (commit `8f16b75`) for SAP S/4HANA Cloud Public Edition:
+> from `main` (commit `aeb5004`) for SAP S/4HANA Cloud Public Edition:
 > the core only, without the on-premise adapter and wrapper. Changes go to `main`.
 
 # Bill of Exchange Manager
@@ -131,6 +131,10 @@ column is found by its name, so the columns may stand in any order and optional
 ones may be left out; the sheet and the column names must keep their names. Sheet
 `Instructions` describes every column with an example. Company code and posting
 date belong to the run and are entered in the application.
+
+The file has to be a workbook as Excel saves it. A workbook written by another
+tool can store its texts in a way the XLSX library of the system does not read; the
+check then asks to open the file in Excel, save it and upload it again.
 
 In the application the file is uploaded to a run and checked with **Check File**:
 every row becomes a cheque of the run with status *Ready* or *Has errors*, and

@@ -136,6 +136,15 @@ CLASS zcl_boe_xlsx_reader IMPLEMENTATION.
           MESSAGE e040(zboe)
           EXPORTING
             previous = unreadable.
+
+      CATCH cx_sy_ref_is_initial cx_sy_no_handler INTO DATA(library_failure).
+        " the library stops with a null reference on a cell it has no data type for - seen with a workbook
+        " whose texts were stored as inline strings, which Excel does not write but other tools do. Without
+        " this handler the user gets a short dump instead of a message
+        RAISE EXCEPTION TYPE zcx_boe_file
+          MESSAGE e045(zboe)
+          EXPORTING
+            previous = library_failure.
     ENDTRY.
   ENDMETHOD.
 
