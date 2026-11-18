@@ -3,9 +3,6 @@
     "FROM": [
       "ZI_BOERUNSTATUSTEXT",
       "ZR_BOEMIGRATIONRUN"
-    ],
-    "ASSOCIATED": [
-      "ZC_BOEMIGRATIONITEM"
     ]
   }
 }

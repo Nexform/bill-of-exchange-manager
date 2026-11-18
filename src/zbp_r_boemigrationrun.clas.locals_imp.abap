@@ -78,6 +78,12 @@ CLASS lhc_run DEFINITION INHERITING FROM cl_abap_behavior_handler.
     "! State area of validatePostingDate.
     CONSTANTS posting_date_area TYPE string VALUE 'POSTING_DATE'.
 
+    " derived types can be declared with TYPES and DATA only, not in the signature of a method
+    "! A run as READ ENTITIES returns it.
+    TYPES run_read TYPE STRUCTURE FOR READ RESULT zr_boemigrationrun\\run.
+    "! Runs whose cheques are to be read.
+    TYPES runs_with_cheques TYPE TABLE FOR READ IMPORT zr_boemigrationrun\\run\_items.
+
     "! Grants every operation: an operation that gets no verdict stays allowed.
     "! Authorizations are added as the last step before the first productive
     "! use - this method and an access control of the views are their place.
@@ -116,7 +122,7 @@ CLASS lhc_run DEFINITION INHERITING FROM cl_abap_behavior_handler.
     "! @parameter outcome | Cheques and messages of the file
     "! @parameter result  | abap_true when everything was stored
     METHODS store_outcome
-      IMPORTING run           TYPE STRUCTURE FOR READ RESULT zr_boemigrationrun\\run
+      IMPORTING run           TYPE run_read
                 outcome       TYPE zif_boe_migration=>check_result
       RETURNING VALUE(result) TYPE abap_bool.
 
@@ -124,7 +130,7 @@ CLASS lhc_run DEFINITION INHERITING FROM cl_abap_behavior_handler.
     "!
     "! @parameter runs | Runs whose cheques are deleted
     METHODS delete_cheques
-      IMPORTING runs TYPE TABLE FOR READ IMPORT zr_boemigrationrun\\run\_items.
+      IMPORTING runs TYPE runs_with_cheques.
 
     "! Gives a new run the status open.
     "!
