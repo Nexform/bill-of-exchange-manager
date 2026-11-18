@@ -2,4 +2,6 @@
 @ObjectModel.leadingEntity.name: 'ZC_BoEMigrationRun'
 define service ZSD_BoEMigrationRun {
   expose ZC_BoEMigrationRun as MigrationRun;
+  expose ZC_BoEMigrationItem as MigrationItem;
+  expose ZC_BoEMigrationMessage as MigrationMessage;
 }

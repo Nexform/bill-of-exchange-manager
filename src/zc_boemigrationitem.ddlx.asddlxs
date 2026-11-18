@@ -1,0 +1,107 @@
+@Metadata.layer: #CORE
+
+@UI.headerInfo: { typeName: 'Cheque',
+                  typeNamePlural: 'Cheques',
+                  title: { type: #STANDARD, value: 'BoENumber' },
+                  description: { type: #STANDARD, value: 'Customer' } }
+
+@UI.presentationVariant: [ { sortOrder: [ { by: 'RowNumber', direction: #ASC } ],
+                             visualizations: [ { type: #AS_LINEITEM } ] } ]
+
+annotate view ZC_BoEMigrationItem with
+{
+  @UI.facet: [ { id: 'Cheque',
+                 purpose: #STANDARD,
+                 type: #FIELDGROUP_REFERENCE,
+                 targetQualifier: 'Cheque',
+                 label: 'Cheque',
+                 position: 10 },
+               { id: 'Bank',
+                 purpose: #STANDARD,
+                 type: #FIELDGROUP_REFERENCE,
+                 targetQualifier: 'Bank',
+                 label: 'Banks',
+                 position: 20 },
+               { id: 'Messages',
+                 purpose: #STANDARD,
+                 type: #LINEITEM_REFERENCE,
+                 targetElement: '_Messages',
+                 label: 'Messages',
+                 position: 30 } ]
+  @UI.hidden: true
+  ItemUUID;
+
+  @UI.hidden: true
+  RunUUID;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 10 } ]
+  @UI.lineItem: [ { position: 10 } ]
+  RowNumber;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 20, criticality: 'ItemStatusCriticality' } ]
+  @UI.lineItem: [ { position: 20, criticality: 'ItemStatusCriticality' } ]
+  @UI.textArrangement: #TEXT_ONLY
+  ItemStatus;
+
+  @UI.hidden: true
+  ItemStatusText;
+
+  @UI.hidden: true
+  ItemStatusCriticality;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 30 } ]
+  @UI.lineItem: [ { position: 30 } ]
+  BoENumber;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 40 } ]
+  @UI.lineItem: [ { position: 40 } ]
+  Customer;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 50 } ]
+  @UI.lineItem: [ { position: 50 } ]
+  Amount;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 60 } ]
+  @UI.lineItem: [ { position: 60 } ]
+  DueDate;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 70 } ]
+  IssueDate;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 80 } ]
+  @UI.lineItem: [ { position: 70 } ]
+  TargetStatus;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 90 } ]
+  DrawerName;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 100 } ]
+  IsRegisterOnly;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 110 } ]
+  LegacyReference;
+
+  @UI.fieldGroup: [ { qualifier: 'Cheque', position: 120 } ]
+  Note;
+
+  @UI.fieldGroup: [ { qualifier: 'Bank', position: 10 } ]
+  DraweeBankCountry;
+
+  @UI.fieldGroup: [ { qualifier: 'Bank', position: 20 } ]
+  DraweeBank;
+
+  @UI.fieldGroup: [ { qualifier: 'Bank', position: 30 } ]
+  DraweeBankName;
+
+  @UI.fieldGroup: [ { qualifier: 'Bank', position: 40 } ]
+  DraweeAccount;
+
+  @UI.fieldGroup: [ { qualifier: 'Bank', position: 50 } ]
+  HouseBank;
+
+  @UI.fieldGroup: [ { qualifier: 'Bank', position: 60 } ]
+  HouseBankAccount;
+
+  @UI.hidden: true
+  LocalLastChangedAt;
+}

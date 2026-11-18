@@ -1,0 +1,12 @@
+{
+  "BASEINFO": {
+    "FROM": [
+      "ZTBOE_MSG"
+    ],
+    "ASSOCIATED": [
+      "ZI_BOESEVERITYTEXT",
+      "ZR_BOEMIGRATIONITEM",
+      "ZR_BOEMIGRATIONRUN"
+    ]
+  }
+}
