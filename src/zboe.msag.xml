@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZBOE</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Bill of Exchange Manager</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>Posting adapter class &amp;1 does not exist or cannot be instantiated</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>011</MSGNR>
+     <TEXT>Class &amp;1 does not implement interface ZIF_BOE_POSTING</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>012</MSGNR>
+     <TEXT>Posting adapter class &amp;1 could not be registered</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>020</MSGNR>
+     <TEXT>No posting adapter installed - bills can only be kept in the register</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>
