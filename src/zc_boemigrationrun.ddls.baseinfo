@@ -1,6 +1,7 @@
 {
   "BASEINFO": {
     "FROM": [
+      "ZI_BOERUNSTATUSTEXT",
       "ZR_BOEMIGRATIONRUN"
     ]
   }

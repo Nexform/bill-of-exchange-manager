@@ -50,6 +50,39 @@ CLASS lth_run_doubles IMPLEMENTATION.
 ENDCLASS.
 
 
+"! <p class="shorttext" lang="EN">Master data with one company code</p>
+"! The checks of the run header ask only for company codes; the other
+"! questions of the interface stay unanswered.
+CLASS ltd_master_data DEFINITION FINAL FOR TESTING.
+  PUBLIC SECTION.
+    INTERFACES zif_boe_master_data.
+
+    "! The one company code that exists.
+    CONSTANTS existing_company_code TYPE zboe_company_code VALUE 'GR01'.
+ENDCLASS.
+
+
+CLASS ltd_master_data IMPLEMENTATION.
+  METHOD zif_boe_master_data~existing_company_codes.
+    IF line_exists( company_codes[ company_code = existing_company_code ] ).
+      result = VALUE #( ( company_code = existing_company_code ) ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD zif_boe_master_data~customers_in_company ##NEEDED.
+  ENDMETHOD.
+
+  METHOD zif_boe_master_data~currencies ##NEEDED.
+  ENDMETHOD.
+
+  METHOD zif_boe_master_data~existing_banks ##NEEDED.
+  ENDMETHOD.
+
+  METHOD zif_boe_master_data~house_bank_accounts ##NEEDED.
+  ENDMETHOD.
+ENDCLASS.
+
+
 "! <p class="shorttext" lang="EN">The run through EML: initial status and header checks</p>
 "! Drives the business object the way a consumer does, so that the wiring of
 "! the behavior definition is tested together with the handler.
@@ -66,6 +99,8 @@ CLASS ltc_run DEFINITION FINAL
       BEGIN OF message,
         company_code_missing TYPE symsgno VALUE '030',
         posting_date_missing TYPE symsgno VALUE '031',
+        description_missing  TYPE symsgno VALUE '032',
+        company_code_unknown TYPE symsgno VALUE '033',
       END OF message.
 
     CLASS-METHODS class_setup.
@@ -77,12 +112,14 @@ CLASS ltc_run DEFINITION FINAL
     "! Every parameter defaults to a valid value, so a test names only what it
     "! wants to be wrong.
     "!
+    "! @parameter description  | Description of the run
     "! @parameter company_code | Company code of the run
     "! @parameter posting_date | Posting date of the run
     "! @parameter failed       | Runs the save sequence rejected
     "! @parameter reported     | Messages of the save sequence
     METHODS create_and_save
-      IMPORTING company_code TYPE zboe_company_code DEFAULT 'GR01'
+      IMPORTING description  TYPE zboe_description DEFAULT 'Cutover'
+                company_code TYPE zboe_company_code DEFAULT ltd_master_data=>existing_company_code
                 posting_date TYPE zboe_posting_date DEFAULT '20261231'
       EXPORTING failed       TYPE failed_late
                 reported     TYPE reported_late.
@@ -96,7 +133,9 @@ CLASS ltc_run DEFINITION FINAL
                 expected TYPE symsgno.
 
     METHODS given_valid_run_then_saved     FOR TESTING.
+    METHODS given_no_descr_then_rejected   FOR TESTING.
     METHODS given_no_company_then_rejected FOR TESTING.
+    METHODS given_unknown_company_then_rej FOR TESTING.
     METHODS given_no_date_then_rejected    FOR TESTING.
     METHODS when_created_then_status_open  FOR TESTING.
 
@@ -115,10 +154,12 @@ CLASS ltc_run IMPLEMENTATION.
 
   METHOD setup.
     lth_run_doubles=>clear( ).
+    lcl_run_factory=>inject_master_data( NEW ltd_master_data( ) ).
   ENDMETHOD.
 
   METHOD teardown.
     ROLLBACK ENTITIES.
+    lcl_run_factory=>inject_master_data( VALUE #( ) ).
   ENDMETHOD.
 
   METHOD create_and_save.
@@ -126,7 +167,7 @@ CLASS ltc_run IMPLEMENTATION.
            ENTITY run
            CREATE FIELDS ( description companycode postingdate )
            WITH VALUE #( ( %cid        = 'RUN1'
-                           description = 'Cutover'
+                           description = description
                            companycode = company_code
                            postingdate = posting_date ) ).
 
@@ -162,6 +203,19 @@ CLASS ltc_run IMPLEMENTATION.
                                          msg = `A run with company code and posting date must be saved` ).
   ENDMETHOD.
 
+  METHOD given_no_descr_then_rejected.
+    " ACT
+    create_and_save( EXPORTING description = VALUE #( )
+                     IMPORTING failed      = DATA(failed)
+                               reported    = DATA(reported) ).
+
+    " ASSERT
+    cl_abap_unit_assert=>assert_not_initial( act = failed-run
+                                             msg = `A run without a description must be rejected` ).
+    assert_message( reported = reported
+                    expected = message-description_missing ).
+  ENDMETHOD.
+
   METHOD given_no_company_then_rejected.
     " ACT
     create_and_save( EXPORTING company_code = VALUE #( )
@@ -173,6 +227,19 @@ CLASS ltc_run IMPLEMENTATION.
                                              msg = `A run without a company code must be rejected` ).
     assert_message( reported = reported
                     expected = message-company_code_missing ).
+  ENDMETHOD.
+
+  METHOD given_unknown_company_then_rej.
+    " ACT
+    create_and_save( EXPORTING company_code = 'XX99'
+                     IMPORTING failed       = DATA(failed)
+                               reported     = DATA(reported) ).
+
+    " ASSERT
+    cl_abap_unit_assert=>assert_not_initial( act = failed-run
+                                             msg = `A run in a company code that does not exist must be rejected` ).
+    assert_message( reported = reported
+                    expected = message-company_code_unknown ).
   ENDMETHOD.
 
   METHOD given_no_date_then_rejected.
@@ -195,7 +262,7 @@ CLASS ltc_run IMPLEMENTATION.
            CREATE FIELDS ( description companycode postingdate )
            WITH VALUE #( ( %cid        = 'RUN1'
                            description = 'Cutover'
-                           companycode = 'GR01'
+                           companycode = ltd_master_data=>existing_company_code
                            postingdate = '20261231' ) )
            MAPPED DATA(mapped).
 

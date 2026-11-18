@@ -5,7 +5,7 @@
    <VSEOINTERF>
     <CLSNAME>ZIF_BOE_MIGRATION</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Constants of the migration of bills of exchange</DESCRIPT>
+    <DESCRIPT>Constants and types of the migration of bills of exchange</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
     <UNICODE>5</UNICODE>

@@ -3,6 +3,9 @@
 @EndUserText.label: 'Bill of exchange migration run'
 define root view entity ZR_BoEMigrationRun
   as select from ztboe_run
+  association [0..1] to ZI_BoERunStatusText as _StatusText
+    on  $projection.Status   = _StatusText.Status
+    and _StatusText.Language = $session.system_language
 {
   key run_uuid              as RunUUID,
       description           as Description,
@@ -26,5 +29,6 @@ define root view entity ZR_BoEMigrationRun
       @Semantics.systemDateTime.lastChangedAt: true                // total etag
       last_changed_at       as LastChangedAt,
       @Semantics.systemDateTime.localInstanceLastChangedAt: true   // etag master
-      local_last_changed_at as LocalLastChangedAt
+      local_last_changed_at as LocalLastChangedAt,
+      _StatusText
 }
