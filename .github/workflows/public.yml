@@ -1,0 +1,73 @@
+name: Public Edition branch
+
+# Builds branch `public` from main after every merge: everything except the
+# on-premise objects (BOE_ONPREM, BOE_WRAP), checked on its own with the same
+# gate as main. S/4HANA Cloud Public Edition links this branch; Private Edition
+# and on-premise link main. Nobody commits to `public` by hand.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: public-branch
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build branch public (core only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          path: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: 'main/.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'main/package-lock.json'
+
+      - name: Build the Public Edition tree
+        run: node main/tools/build-public.mjs main tree "$GITHUB_SHA"
+
+      - name: Check the tree on its own (abaplint + off-stack ABAP Unit)
+        working-directory: tree
+        run: |
+          npm ci
+          npm run check
+
+      - name: Commit to branch public
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir publish
+          cd publish
+          git init -q
+          git remote add origin "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git fetch -q --depth=1 origin public; then
+            git checkout -q -b public FETCH_HEAD
+          else
+            git checkout -q --orphan public
+          fi
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          rm -rf ../tree/node_modules ../tree/output
+          cp -a ../tree/. ./
+          git add -A
+          if git diff --cached --quiet; then
+            echo "public: no change"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898283+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Public Edition build of main@${GITHUB_SHA::7}"
+          git push -q origin public
+          echo "public: updated from main@${GITHUB_SHA::7}"

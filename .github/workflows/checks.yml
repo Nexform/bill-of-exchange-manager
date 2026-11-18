@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   lint:
-    name: abaplint + off-stack ABAP Unit (core)
+    name: abaplint, language versions, off-stack ABAP Unit (core)
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -35,6 +35,9 @@ jobs:
 
       - name: Lint (abaplint)
         run: npm run lint
+
+      - name: ABAP language versions
+        run: npm run language
 
       - name: Transpile & run unit tests (core)
         run: npm test
