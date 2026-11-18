@@ -142,7 +142,11 @@
     "identical_descriptions": true,
     "check_text_elements": true,
     "easy_to_find_messages": true,
-    "unused_ddic": true,
+    "unused_ddic": {
+      "exclude": [
+        "ztboe_[^/]*\\.tabl\\.xml$"
+      ]
+    },
     "unused_types": true,
     "unused_methods": {
       "exclude": [

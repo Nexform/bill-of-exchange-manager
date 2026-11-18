@@ -1,8 +1,9 @@
 # Bill of Exchange Manager
 
-> **Status: pre-release.** Phase 0 (validation) and the first design of the core
-> are in progress. There is no code in `src/` yet; nothing here is ready to install
-> in a customer system.
+> **Status: pre-release.** Phase 0 (validation) is in progress and the core is being
+> built in slices. `src/` holds the first one - data elements, the posting contract
+> `ZIF_BOE_POSTING`, the status rules and the adapter lookup. There is no application
+> yet; nothing here is ready to install in a customer system.
 
 A clean-core tool for **cheques and bills of exchange** (επιταγές, συναλλαγματικές)
 in **SAP S/4HANA Cloud Public Edition, Private Edition and on-premise**, built for
@@ -20,9 +21,10 @@ one adapter per edition.
 2. [Requirements](#requirements)
 3. [Package and parts](#package-and-parts)
 4. [Installation](#installation)
-5. [Development](#development)
-6. [Checks](#checks)
-7. [License](#license)
+5. [Migration file](#migration-file)
+6. [Development](#development)
+7. [Checks](#checks)
+8. [License](#license)
 
 ## Editions
 
@@ -83,6 +85,15 @@ own.
 Where the customer does not allow abapGit, pull into one system (for example a
 sandbox) and move the package with an ordinary transport.
 
+## Migration file
+
+Cheques are migrated from one Excel file per run:
+[`docs/boe_migration_template.xlsx`](docs/boe_migration_template.xlsx). Sheet
+`Cheques` takes one row per cheque from row 2; row 1 holds the column names and is
+checked on upload, so neither it nor the order of the columns may change. Sheet
+`Instructions` describes every column with an example. Company code and posting
+date belong to the run and are entered in the application.
+
 ## Development
 
 1. In an S/4HANA 2022 system, create `Z_BOE_ONPREM` with ABAP language version
@@ -96,9 +107,11 @@ sandbox) and move the package with an ordinary transport.
        npm run check
 
 Naming follows the `abap-llm-rulebook` baseline: namespace `Z`, domain token
-`BOE` — tables `ZTBOE_<entity>`, message class `ZBOE`, exception classes
-`ZCX_BOE_<purpose>`; type-coded names (`ZCL_`, `ZIF_`, `ZR_`, `ZC_`, …) stay as
-they are. On top of that, adapter and wrapper objects carry their token
+`BOE` — tables `ZTBOE_<entity>`, domains and data elements `ZBOE_<name>`, message
+class `ZBOE`, exception classes `ZCX_BOE_<purpose>`; type-coded names (`ZCL_`,
+`ZIF_`, `ZR_`, `ZC_`, …) stay as they are. Every table field is typed with a data
+element of this package (or `MANDT`, the name the client field always has): a field
+typed with any other SAP data element does not transpile off-stack. On top of that, adapter and wrapper objects carry their token
 (`BOE_ONPREM`, `BOE_WRAP`), and no core object may contain either.
 
 Core logic is written to be testable without the system: ABAP Unit tests with
@@ -116,6 +129,13 @@ Actions runs the same on every pull request and every push to `main`.
 | `npm test` | transpiles the core with the abaplint transpiler (`abap_transpile.json`, libraries from [open-abap](https://github.com/open-abap)) and runs its ABAP Unit tests on Node.js, with an in-memory SQLite database |
 
 An empty `src/`, or a core without a test class, is skipped.
+
+Two deviations from the plain setup, both forced by what the tools support:
+`abap_transpile.json` also leaves out access controls (`*.dcls.*` — the transpiler
+rejects the object type) and job classes (`zcl_boe_*_job` — they implement SAP
+interfaces that open-abap does not have), and `unused_ddic` in `abaplint.json` skips
+the `ZTBOE_*` tables, because a table read only by a CDS view or named as draft
+table of a behavior definition does not count as referenced.
 
 **What the checks leave to the system.** abaplint reads every object as Standard
 ABAP: the ABAP Cloud restrictions of the core and the adapter are enforced by the

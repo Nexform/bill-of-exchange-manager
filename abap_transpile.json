@@ -2,7 +2,9 @@
   "input_folder": "src",
   "exclude_filter": [
     "/[^/]*boe_(onprem|wrap)[^/]*$",
-    "/zbp_[^/]*$"
+    "/zbp_[^/]*$",
+    "/zcl_boe_[^/]*_job\\.clas\\.[^/]*$",
+    "/[^/]*\\.dcls\\.[^/]*$"
   ],
   "output_folder": "output",
   "libs": [
