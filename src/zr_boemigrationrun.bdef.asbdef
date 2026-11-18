@@ -1,0 +1,57 @@
+managed implementation in class zbp_r_boemigrationrun unique;
+strict ( 2 );
+with draft;
+
+define behavior for ZR_BoEMigrationRun alias Run
+persistent table ztboe_run
+draft table ztboe_run_d
+lock master
+total etag LastChangedAt
+authorization master ( global, instance )
+etag master LocalLastChangedAt
+{
+  create;
+  update;
+  delete;
+
+  field ( readonly, numbering : managed ) RunUUID;
+  field ( readonly ) Status, CreatedBy, CreatedAt, LastChangedBy, LastChangedAt, LocalLastChangedAt;
+  field ( mandatory ) CompanyCode, PostingDate;
+
+  // a new run starts open; from then on only the processing of the run moves the status
+  determination setInitialStatus on modify { create; }
+
+  // every bill of the run is posted in this company code, so the user must be allowed to post there
+  validation validateCompanyCode on save { create; field CompanyCode; }
+
+  // the posting date of the run is the posting date of every document it creates
+  validation validatePostingDate on save { create; field PostingDate; }
+
+  draft action Edit;
+  // plain Activate: the optimized variant is not part of the 7.57 syntax, the minimum release of the core
+  draft action Activate;
+  draft action Discard;
+  draft action Resume;
+  draft determine action Prepare
+  {
+    validation validateCompanyCode;
+    validation validatePostingDate;
+  }
+
+  mapping for ztboe_run
+    {
+      RunUUID            = run_uuid;
+      Description        = description;
+      CompanyCode        = company_code;
+      PostingDate        = posting_date;
+      Status             = status;
+      FileContent        = file_content;
+      FileMimeType       = file_mime_type;
+      FileName           = file_name;
+      CreatedBy          = created_by;
+      CreatedAt          = created_at;
+      LastChangedBy      = last_changed_by;
+      LastChangedAt      = last_changed_at;
+      LocalLastChangedAt = local_last_changed_at;
+    }
+}

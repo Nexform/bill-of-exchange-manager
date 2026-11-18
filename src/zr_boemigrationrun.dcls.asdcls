@@ -1,0 +1,6 @@
+@EndUserText.label: 'Migration run - read access'
+@MappingRole: true
+define role ZR_BoEMigrationRun {
+  grant select on ZR_BoEMigrationRun
+    where ( CompanyCode ) = aspect pfcg_auth( F_BKPF_BUK, BUKRS, ACTVT = '03' ); // 03 = display
+}
