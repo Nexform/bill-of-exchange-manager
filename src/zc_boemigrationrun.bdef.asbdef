@@ -9,9 +9,27 @@ define behavior for ZC_BoEMigrationRun alias Run
   use update;
   use delete;
 
+  use action checkFile;
+
   use action Edit;
   use action Activate;
   use action Discard;
   use action Resume;
   use action Prepare;
+
+  use association _Items { with draft; }
+}
+
+define behavior for ZC_BoEMigrationItem alias Item
+  use etag
+{
+  use association _Run { with draft; }
+  use association _Messages { with draft; }
+}
+
+define behavior for ZC_BoEMigrationMessage alias Message
+  use etag
+{
+  use association _Run { with draft; }
+  use association _Item { with draft; }
 }

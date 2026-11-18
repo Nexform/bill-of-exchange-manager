@@ -22,16 +22,23 @@ annotate view ZC_BoEMigrationRun with
                  targetQualifier: 'File',
                  label: 'Migration File',
                  position: 20 },
+               { id: 'Cheques',
+                 purpose: #STANDARD,
+                 type: #LINEITEM_REFERENCE,
+                 targetElement: '_Items',
+                 label: 'Cheques',
+                 position: 30 },
                { id: 'Admin',
                  purpose: #STANDARD,
                  type: #FIELDGROUP_REFERENCE,
                  targetQualifier: 'Admin',
                  label: 'Administrative Data',
-                 position: 30 } ]
+                 position: 40 } ]
   @UI.hidden: true
   RunUUID;
 
   @UI.fieldGroup: [ { qualifier: 'Run', position: 10 } ]
+  @UI.identification: [ { type: #FOR_ACTION, dataAction: 'checkFile', label: 'Check File', position: 10 } ]
   @UI.lineItem: [ { position: 10 } ]
   Description;
 
@@ -62,6 +69,12 @@ annotate view ZC_BoEMigrationRun with
 
   @UI.hidden: true
   FileName;
+
+  @UI.fieldGroup: [ { qualifier: 'File', position: 20 } ]
+  ItemCount;
+
+  @UI.fieldGroup: [ { qualifier: 'File', position: 30 } ]
+  ErrorCount;
 
   @UI.fieldGroup: [ { qualifier: 'Admin', position: 10 } ]
   @UI.lineItem: [ { position: 60 } ]

@@ -3,9 +3,8 @@
 @EndUserText.label: 'Bill of exchange migration run'
 define root view entity ZR_BoEMigrationRun
   as select from ztboe_run
-  association [0..1] to ZI_BoERunStatusText as _StatusText
-    on  $projection.Status   = _StatusText.Status
-    and _StatusText.Language = $session.system_language
+  composition [0..*] of ZR_BoEMigrationItem as _Items
+  association [0..1] to ZI_BoERunStatusText as _StatusText on $projection.Status = _StatusText.Status
 {
   key run_uuid              as RunUUID,
       description           as Description,
@@ -20,6 +19,8 @@ define root view entity ZR_BoEMigrationRun
       @Semantics.mimeType: true
       file_mime_type        as FileMimeType,
       file_name             as FileName,
+      item_count            as ItemCount,
+      error_count           as ErrorCount,
       @Semantics.user.createdBy: true
       created_by            as CreatedBy,
       @Semantics.systemDateTime.createdAt: true
@@ -30,5 +31,6 @@ define root view entity ZR_BoEMigrationRun
       last_changed_at       as LastChangedAt,
       @Semantics.systemDateTime.localInstanceLastChangedAt: true   // etag master
       local_last_changed_at as LocalLastChangedAt,
+      _Items,
       _StatusText
 }

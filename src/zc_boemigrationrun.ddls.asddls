@@ -18,9 +18,12 @@ define root view entity ZC_BoEMigrationRun
       FileContent,
       FileMimeType,
       FileName,
+      ItemCount,
+      ErrorCount,
       CreatedBy,
       CreatedAt,
       LastChangedBy,
       LastChangedAt,
-      LocalLastChangedAt
+      LocalLastChangedAt,
+      _Items : redirected to composition child ZC_BoEMigrationItem
 }
