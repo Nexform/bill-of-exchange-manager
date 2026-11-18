@@ -1,4 +1,5 @@
-@AccessControl.authorizationCheck: #CHECK
+// no access control yet: authorizations are added as the last step before the first productive use
+@AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Bill of exchange migration run'
 define root view entity ZR_BoEMigrationRun
   as select from ztboe_run

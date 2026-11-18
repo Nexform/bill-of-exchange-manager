@@ -1,6 +1,0 @@
-@EndUserText.label: 'Migration run - read access'
-@MappingRole: true
-define role ZC_BoEMigrationRun {
-  grant select on ZC_BoEMigrationRun
-    where inheriting conditions from entity ZR_BoEMigrationRun;
-}
