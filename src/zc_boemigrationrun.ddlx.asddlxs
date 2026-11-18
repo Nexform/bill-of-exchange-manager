@@ -47,7 +47,11 @@ annotate view ZC_BoEMigrationRun with
   @UI.fieldGroup: [ { qualifier: 'Run', position: 40 } ]
   @UI.lineItem: [ { position: 40 } ]
   @UI.selectionField: [ { position: 20 } ]
+  @UI.textArrangement: #TEXT_FIRST
   Status;
+
+  @UI.hidden: true
+  StatusText;
 
   @UI.fieldGroup: [ { qualifier: 'File', position: 10 } ]
   @UI.lineItem: [ { position: 50 } ]

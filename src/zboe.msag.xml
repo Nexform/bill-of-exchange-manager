@@ -44,6 +44,144 @@
      <MSGNR>031</MSGNR>
      <TEXT>Enter a posting date</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>032</MSGNR>
+     <TEXT>Enter a description</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>033</MSGNR>
+     <TEXT>Company code &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>040</MSGNR>
+     <TEXT>The file cannot be read as an Excel workbook (.xlsx)</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>041</MSGNR>
+     <TEXT>Sheet &amp;1 is missing in the file</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>042</MSGNR>
+     <TEXT>Column &amp;1 is missing in row 1 of sheet &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>043</MSGNR>
+     <TEXT>Sheet &amp;1 has no cheques below the header row</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>050</MSGNR>
+     <TEXT>Column &amp;1: value &amp;2 is too long</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>051</MSGNR>
+     <TEXT>Column &amp;1: &amp;2 is not a valid date</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>052</MSGNR>
+     <TEXT>Column &amp;1: &amp;2 is not a valid amount</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>053</MSGNR>
+     <TEXT>Column &amp;1: enter X or leave the cell empty, not &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>054</MSGNR>
+     <TEXT>Column &amp;1 is mandatory</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>055</MSGNR>
+     <TEXT>The amount must be greater than zero</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>060</MSGNR>
+     <TEXT>Due date &amp;1 is before issue date &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>061</MSGNR>
+     <TEXT>Status &amp;1 is not possible for a migrated cheque</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>062</MSGNR>
+     <TEXT>Status &amp;1 needs a house bank and a house bank account</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>063</MSGNR>
+     <TEXT>Cheque &amp;1 of customer &amp;2 is already in row &amp;3 of the file</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>064</MSGNR>
+     <TEXT>Customer &amp;1 does not exist in company code &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>065</MSGNR>
+     <TEXT>Currency &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>066</MSGNR>
+     <TEXT>Currency &amp;1 is not supported: it does not have 2 decimals</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>067</MSGNR>
+     <TEXT>House bank &amp;1 has no account in company code &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>068</MSGNR>
+     <TEXT>Account &amp;1 does not exist at house bank &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>069</MSGNR>
+     <TEXT>Bank &amp;1 of country &amp;2 is not in the bank master data</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZBOE</ARBGB>
+     <MSGNR>070</MSGNR>
+     <TEXT>A drawee bank needs the country of the bank</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

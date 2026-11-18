@@ -18,10 +18,13 @@ etag master LocalLastChangedAt
 
   field ( readonly, numbering : managed ) RunUUID;
   field ( readonly ) Status, CreatedBy, CreatedAt, LastChangedBy, LastChangedAt, LocalLastChangedAt;
-  field ( mandatory ) CompanyCode, PostingDate;
+  field ( mandatory ) Description, CompanyCode, PostingDate;
 
   // a new run starts open; from then on only the processing of the run moves the status
   determination setInitialStatus on modify { create; }
+
+  // the description is how users tell their runs apart
+  validation validateDescription on save { create; field Description; }
 
   // every bill of the run is posted in this company code
   validation validateCompanyCode on save { create; field CompanyCode; }
@@ -36,6 +39,7 @@ etag master LocalLastChangedAt
   draft action Resume;
   draft determine action Prepare
   {
+    validation validateDescription;
     validation validateCompanyCode;
     validation validatePostingDate;
   }

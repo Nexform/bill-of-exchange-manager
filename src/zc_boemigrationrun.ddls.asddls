@@ -11,7 +11,10 @@ define root view entity ZC_BoEMigrationRun
       @Consumption.valueHelpDefinition: [ { entity: { name: 'I_CompanyCodeStdVH', element: 'CompanyCode' } } ]
       CompanyCode,
       PostingDate,
+      @ObjectModel.text.element: [ 'StatusText' ]
       Status,
+      @Semantics.text: true
+      _StatusText.StatusText as StatusText,
       FileContent,
       FileMimeType,
       FileName,
