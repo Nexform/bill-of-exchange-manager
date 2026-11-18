@@ -16,12 +16,23 @@ etag master LocalLastChangedAt
   update;
   delete;
 
+  // the cheques of a run come from its file only: the check of the file creates them
+  association _Items { internal create; with draft; }
+
   field ( readonly, numbering : managed ) RunUUID;
-  field ( readonly ) Status, CreatedBy, CreatedAt, LastChangedBy, LastChangedAt, LocalLastChangedAt;
+  field ( readonly ) Status, ItemCount, ErrorCount;
+  field ( readonly ) CreatedBy, CreatedAt, LastChangedBy, LastChangedAt, LocalLastChangedAt;
   field ( mandatory ) Description, CompanyCode, PostingDate;
 
   // a new run starts open; from then on only the processing of the run moves the status
   determination setInitialStatus on modify { create; }
+
+  // cheques that were checked against another file or company code say nothing about this one
+  determination discardCheck on modify { field FileContent, CompanyCode; }
+
+  // reads the file and replaces the cheques of the run by the cheques of the file, with their messages;
+  // no side effects for the list of cheques: they are not part of the 7.57 syntax, the minimum release
+  action ( features : instance ) checkFile result [1] $self;
 
   // the description is how users tell their runs apart
   validation validateDescription on save { create; field Description; }
@@ -54,10 +65,92 @@ etag master LocalLastChangedAt
       FileContent        = file_content;
       FileMimeType       = file_mime_type;
       FileName           = file_name;
+      ItemCount          = item_count;
+      ErrorCount         = error_count;
       CreatedBy          = created_by;
       CreatedAt          = created_at;
       LastChangedBy      = last_changed_by;
       LastChangedAt      = last_changed_at;
+      LocalLastChangedAt = local_last_changed_at;
+    }
+}
+
+define behavior for ZR_BoEMigrationItem alias Item
+persistent table ztboe_item
+draft table ztboe_item_d
+lock dependent by _Run
+authorization dependent by _Run
+etag master LocalLastChangedAt
+{
+  // a cheque is corrected in the file, not here: the check of the file deletes the cheques and creates them again
+  internal delete;
+
+  association _Run { with draft; }
+  association _Messages { internal create; with draft; }
+
+  field ( readonly, numbering : managed ) ItemUUID;
+  field ( readonly ) RunUUID, RowNumber, ItemStatus, BoENumber, Customer, Amount, Currency, DueDate, IssueDate;
+  field ( readonly ) TargetStatus, DrawerName, DraweeBankCountry, DraweeBank, DraweeBankName, DraweeAccount;
+  field ( readonly ) HouseBank, HouseBankAccount, IsRegisterOnly, LegacyReference, Note, LocalLastChangedAt;
+
+  mapping for ztboe_item
+    {
+      ItemUUID           = item_uuid;
+      RunUUID            = run_uuid;
+      RowNumber          = row_number;
+      ItemStatus         = item_status;
+      BoENumber          = boe_number;
+      Customer           = customer;
+      Amount             = amount;
+      Currency           = currency;
+      DueDate            = due_date;
+      IssueDate          = issue_date;
+      TargetStatus       = target_status;
+      DrawerName         = drawer_name;
+      DraweeBankCountry  = drawee_bank_country;
+      DraweeBank         = drawee_bank;
+      DraweeBankName     = drawee_bank_name;
+      DraweeAccount      = drawee_account;
+      HouseBank          = house_bank;
+      HouseBankAccount   = house_bank_account;
+      IsRegisterOnly     = register_only;
+      LegacyReference    = legacy_reference;
+      Note               = note;
+      LocalLastChangedAt = local_last_changed_at;
+    }
+}
+
+define behavior for ZR_BoEMigrationMessage alias Message
+persistent table ztboe_msg
+draft table ztboe_msg_d
+lock dependent by _Run
+authorization dependent by _Run
+etag master LocalLastChangedAt
+{
+  // no operation of its own: a message is created with its cheque and deleted with it
+
+  association _Run { with draft; }
+  association _Item { with draft; }
+
+  field ( readonly, numbering : managed ) MessageUUID;
+  field ( readonly ) ItemUUID, RunUUID, Severity, ColumnName, MessageID, MessageNumber;
+  field ( readonly ) MessageVariable1, MessageVariable2, MessageVariable3, MessageVariable4, MessageText;
+  field ( readonly ) LocalLastChangedAt;
+
+  mapping for ztboe_msg
+    {
+      MessageUUID        = message_uuid;
+      ItemUUID           = item_uuid;
+      RunUUID            = run_uuid;
+      Severity           = severity;
+      ColumnName         = column_name;
+      MessageID          = message_id;
+      MessageNumber      = message_number;
+      MessageVariable1   = variable_1;
+      MessageVariable2   = variable_2;
+      MessageVariable3   = variable_3;
+      MessageVariable4   = variable_4;
+      MessageText        = message_text;
       LocalLastChangedAt = local_last_changed_at;
     }
 }

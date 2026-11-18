@@ -1,5 +1,5 @@
 > **Branch `public` — generated, do not commit here.** GitHub Actions builds it
-> from `main` (commit `634cb5a`) for SAP S/4HANA Cloud Public Edition:
+> from `main` (commit `c9adca8`) for SAP S/4HANA Cloud Public Edition:
 > the core only, without the on-premise adapter and wrapper. Changes go to `main`.
 
 # Bill of Exchange Manager
@@ -102,6 +102,16 @@ keeps its own.
 Where the customer does not allow abapGit, pull into one system (for example a
 sandbox) and move the package with an ordinary transport.
 
+The service binding `ZUI_BOEMIGRATIONRUN_O4` needs care on such a system:
+
+- abapGit unpublishes a service binding before it imports it. Once the binding
+  exists, leave it out of a pull unless its file has changed - on the development
+  system a pull over the published binding left it inactive and unpublished, and
+  it had to be deleted and created again.
+- In a client that records customizing changes, ADT refuses to publish or
+  unpublish the binding ("in Customizing Client not allowed"). Publish the
+  service group in transaction `/IWFND/V4_ADMIN` instead.
+
 **Public Edition** — branch `public`:
 
 1. In ADT, *abapGit Repositories* view → **Link** → this repository's URL,
@@ -116,10 +126,16 @@ The Public Edition path has not been tried on a tenant yet (Phase 0, Q6).
 
 Cheques are migrated from one Excel file per run:
 [`docs/boe_migration_template.xlsx`](docs/boe_migration_template.xlsx). Sheet
-`Cheques` takes one row per cheque from row 2; row 1 holds the column names and is
-checked on upload, so neither it nor the order of the columns may change. Sheet
+`Cheques` takes one row per cheque from row 2; row 1 holds the column names. A
+column is found by its name, so the columns may stand in any order and optional
+ones may be left out; the sheet and the column names must keep their names. Sheet
 `Instructions` describes every column with an example. Company code and posting
 date belong to the run and are entered in the application.
+
+In the application the file is uploaded to a run and checked with **Check File**:
+every row becomes a cheque of the run with status *Ready* or *Has errors*, and
+what is wrong with a row is listed with it. Errors are corrected in the file,
+which is then uploaded and checked again.
 
 ## Development
 

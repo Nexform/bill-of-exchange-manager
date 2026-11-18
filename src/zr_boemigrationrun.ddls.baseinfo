@@ -4,7 +4,8 @@
       "ZTBOE_RUN"
     ],
     "ASSOCIATED": [
-      "ZI_BOERUNSTATUSTEXT"
+      "ZI_BOERUNSTATUSTEXT",
+      "ZR_BOEMIGRATIONITEM"
     ]
   }
 }
