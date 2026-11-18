@@ -28,62 +28,84 @@ one adapter per edition.
 
 ## Editions
 
-| Edition | Delivery | Posting | Status |
-|---|---|---|---|
-| S/4HANA Cloud **Private Edition** and **on-premise** (2022+) | **this repository**, installed with abapGit | adapter (`BOE_ONPREM`) calling a classic wrapper (`BOE_WRAP`) that posts with special G/L *W* | first — in design |
-| S/4HANA Cloud **Public Edition** | the core in its own repository, `bill-of-exchange-manager` (ABAP Cloud only), plus a Public Edition adapter | released APIs only; the supported posting route is being validated (Phase 0) | planned |
+**One repository for every S/4HANA edition**, in two branches:
 
-The core is written for both from the start: ABAP for Cloud Development, released
-APIs only, no reference to anything on-premise. While the Private Edition
-delivery is built, the core lives here; once Public Edition is confirmed, it
-moves to `bill-of-exchange-manager` and this repository keeps the adapter and
-the wrapper.
+| Edition | Branch | Posting | Status |
+|---|---|---|---|
+| S/4HANA Cloud **Private Edition** and **on-premise** (2022+) | `main` — everything | adapter (`BOE_ONPREM`) calling a classic wrapper (`BOE_WRAP`) that posts with special G/L *W* | first — in development |
+| S/4HANA Cloud **Public Edition** | `public` — generated from `main`, core only | released APIs only; the supported posting route is being validated (Phase 0) | planned |
+
+All development happens on `main`. After every merge, GitHub Actions builds
+`public`: the same objects without the on-premise adapter and wrapper, checked on
+their own with the same gate (abaplint, language versions, off-stack tests).
+Nobody commits to `public` by hand.
+
+This works because the core is written for both editions from the start: ABAP
+for Cloud Development, released APIs only, no reference to anything on-premise.
+It finds the posting adapter of the system at runtime, through the adapter
+registry (`ZTBOE_ADAPTER`), never by a static reference.
 
 ## Requirements
 
-- SAP S/4HANA (Cloud, private edition, or on-premise) **2022 or later**:
-  `SAP_BASIS` 757 and `S4CORE` 107 — abapGit checks both before a pull. The
-  minimum release is still being validated; if it moves to 2023, both numbers
-  move with it (758 / 108).
-- [abapGit](https://abapgit.org) in the target system (standalone or developer
-  version).
+- **Private Edition / on-premise:** SAP S/4HANA **2022 or later** — `SAP_BASIS`
+  757 and `S4CORE` 107; abapGit checks both before a pull. The minimum release is
+  still being validated; if it moves to 2023, both numbers move with it
+  (758 / 108). [abapGit](https://abapgit.org) in the system (standalone or
+  developer version).
+- **Public Edition:** a tenant with developer extensibility and the abapGit
+  plugin of ADT (*abapGit Repositories* view). Branch `public` carries no
+  release requirements and declares ABAP for Cloud Development for the whole
+  repository.
 
 ## Package and parts
 
-Everything is in **one package, `Z_BOE_ONPREM`** (`src/`, no sub-packages). Its
+Everything is in **one package, `Z_BOE`** (`src/`, no sub-packages; the package
+name is chosen when the repository is linked, so another name works too). Its
 objects form three parts, told apart by the object name:
 
-| Part | Object name contains | ABAP language version | Content |
-|---|---|---|---|
-| core | neither token below | ABAP for Cloud Development | RAP business objects, migration workbench, `ZIF_BOE_POSTING` |
-| adapter | `BOE_ONPREM` — e.g. `ZCL_BOE_ONPREM_POSTING` | ABAP for Cloud Development | Private Edition / on-premise posting adapter: implements `ZIF_BOE_POSTING` by calling the wrapper |
-| wrapper | `BOE_WRAP` — e.g. `ZCL_BOE_WRAP_POSTING`, function group `ZBOE_WRAP` | Standard ABAP | classic wrapper around the posting, released (contract C1) for use in ABAP Cloud |
+| Part | Object name contains | ABAP language version | In branch | Content |
+|---|---|---|---|---|
+| core | neither token below | ABAP for Cloud Development | `main`, `public` | RAP business objects, migration workbench, `ZIF_BOE_POSTING`, adapter registry |
+| adapter | `BOE_ONPREM` — e.g. `ZCL_BOE_ONPREM_POSTING` | ABAP for Cloud Development | `main` | Private Edition / on-premise posting adapter: implements `ZIF_BOE_POSTING` by calling the wrapper |
+| wrapper | `BOE_WRAP` — e.g. `ZCL_BOE_WRAP_POSTING`, function group `ZBOE_WRAP` | Standard ABAP | `main` | classic wrapper around the posting, released (contract C1) for use in ABAP Cloud |
 
-**The core never references the adapter or the wrapper.** It finds the adapter at
-runtime, without a static reference. This keeps the core free of anything that
-exists only on-premise, so it can later move to its own repository and run in
-Public Edition (see [Editions](#editions)). The name tokens make that move mechanical — every object without
-them belongs to the core — and the [checks](#checks) enforce the boundary.
+**The core never references the adapter or the wrapper**, and no core object name
+contains either token: that is what lets `public` be built by leaving the two
+tokens out. The [checks](#checks) enforce both.
 
 The package mixes language versions: its default is *ABAP for Cloud Development*,
-and the wrapper objects are set to *Standard ABAP* one by one. The abapGit
-repository setting *ABAP Language Version* stays empty, so every object keeps its
-own.
+and the wrapper objects are set to *Standard ABAP* one by one. On `main` the
+abapGit repository setting *ABAP Language Version* stays empty, so every object
+keeps its own.
 
 ## Installation
+
+**Private Edition / on-premise** — branch `main`:
 
 1. Make sure the system can reach GitHub from abapGit (SSL certificates for
    `github.com` in `STRUST`, and a personal access token while the repository is
    private).
-2. Create the package `Z_BOE_ONPREM` (transportable).
-3. In abapGit: **New Online** → this repository's URL → package `Z_BOE_ONPREM` →
-   **Pull**.
+2. Create the package `Z_BOE` (transportable).
+3. In abapGit: **New Online** → this repository's URL, branch `main` → package
+   `Z_BOE` → **Pull**.
 4. Check that the wrapper objects (`*BOE_WRAP*`) are released for use in ABAP
    Cloud (API state, contract C1). If your abapGit version did not carry the
    release state, set it in ADT; otherwise the adapter does not activate.
+5. Register the posting adapter in the adapter registry (`ZTBOE_ADAPTER`); until
+   then the core posts nothing.
 
 Where the customer does not allow abapGit, pull into one system (for example a
 sandbox) and move the package with an ordinary transport.
+
+**Public Edition** — branch `public`:
+
+1. In ADT, *abapGit Repositories* view → **Link** → this repository's URL,
+   branch **`public`** → package `Z_BOE` in a software component of the
+   tenant → **Pull**.
+2. Register the Public Edition adapter in the adapter registry once it exists
+   (planned).
+
+The Public Edition path has not been tried on a tenant yet (Phase 0, Q6).
 
 ## Migration file
 
@@ -96,11 +118,12 @@ date belong to the run and are entered in the application.
 
 ## Development
 
-1. In an S/4HANA 2022 system, create `Z_BOE_ONPREM` with ABAP language version
+1. In an S/4HANA 2022 system, create `Z_BOE` with ABAP language version
    *ABAP for Cloud Development*. Develop at the minimum release: an object that
    uses a newer feature does not import into an older one.
-2. Link the package to this repository in abapGit (developer version), push to a
-   branch and open a pull request against `main`.
+2. Link the package to branch `main` in abapGit (developer version), push to a
+   feature branch and open a pull request against `main`. Never push to
+   `public`.
 3. Before the pull request, run the checks locally:
 
        npm ci
@@ -111,8 +134,9 @@ Naming follows the `abap-llm-rulebook` baseline: namespace `Z`, domain token
 class `ZBOE`, exception classes `ZCX_BOE_<purpose>`; type-coded names (`ZCL_`,
 `ZIF_`, `ZR_`, `ZC_`, …) stay as they are. Every table field is typed with a data
 element of this package (or `MANDT`, the name the client field always has): a field
-typed with any other SAP data element does not transpile off-stack. On top of that, adapter and wrapper objects carry their token
-(`BOE_ONPREM`, `BOE_WRAP`), and no core object may contain either.
+typed with any other SAP data element does not transpile off-stack. On top of that,
+adapter and wrapper objects carry their token (`BOE_ONPREM`, `BOE_WRAP`), and no
+core object may contain either.
 
 Core logic is written to be testable without the system: ABAP Unit tests with
 test doubles for `ZIF_BOE_POSTING` and for every other dependency on SAP
@@ -120,15 +144,23 @@ standard, so that they also run off-stack.
 
 ## Checks
 
-`npm run check` runs abaplint, then the core's unit tests off-stack. GitHub
-Actions runs the same on every pull request and every push to `main`.
+`npm run check` runs abaplint, the language version check, then the core's unit
+tests off-stack. GitHub Actions runs the same on every pull request and every push
+to `main`, and builds branch `public` after every merge.
 
 | Script | What it does |
 |---|---|
 | `npm run lint` | abaplint with `abaplint.json` (the on-premise template of `abap-llm-rulebook`) on all of `src/`, at release 7.57, the minimum release of this repository. `forbidden_identifier` enforces the core boundary: a core object that names a `BOE_ONPREM` or `BOE_WRAP` object fails |
+| `npm run language` | every object except the wrapper must be serialized as ABAP for Cloud Development (`<UNICODE>5` for classes and interfaces, `<ABAP_LANGUAGE_VERSION>5` for the rest): a core object set to Standard ABAP by mistake would not import into Public Edition |
 | `npm test` | transpiles the core with the abaplint transpiler (`abap_transpile.json`, libraries from [open-abap](https://github.com/open-abap)) and runs its ABAP Unit tests on Node.js, with an in-memory SQLite database |
 
 An empty `src/`, or a core without a test class, is skipped.
+
+**Branch `public`** (`.github/workflows/public.yml`, `tools/build-public.mjs`):
+copies `main` without the workflows and without every `*boe_onprem*` / `*boe_wrap*`
+file, drops the abapGit release requirements, sets the repository language
+version to ABAP for Cloud Development, runs `npm run check` on the result and
+commits it to `public` only when it passes.
 
 Two deviations from the plain setup, both forced by what the tools support:
 `abap_transpile.json` also leaves out access controls (`*.dcls.*` — the transpiler
