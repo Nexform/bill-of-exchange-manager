@@ -1,5 +1,5 @@
 > **Branch `public` — generated, do not commit here.** GitHub Actions builds it
-> from `main` (commit `e8c4d8f`) for SAP S/4HANA Cloud Public Edition:
+> from `main` (commit `634cb5a`) for SAP S/4HANA Cloud Public Edition:
 > the core only, without the on-premise adapter and wrapper. Changes go to `main`.
 
 # Bill of Exchange Manager
@@ -169,8 +169,12 @@ commits it to `public` only when it passes.
 
 Two deviations from the plain setup, both forced by what the tools support:
 `abap_transpile.json` also leaves out access controls (`*.dcls.*` — the transpiler
-rejects the object type) and job classes (`zcl_boe_*_job` — they implement SAP
-interfaces that open-abap does not have), and `unused_ddic` in `abaplint.json` skips
+rejects the object type), job classes (`zcl_boe_*_job` — they implement SAP
+interfaces that open-abap does not have), the views of the business objects
+(`zr_*.ddls`, `zc_*.ddls` — the transpiler builds a database view per CDS view and
+cannot build one with an association) and the text views of fixed values
+(`zi_boe*text.ddls` — they select from a table function of SAP); abaplint still
+checks all of them. And `unused_ddic` in `abaplint.json` skips
 the `ZTBOE_*` tables, because a table read only by a CDS view or named as draft
 table of a behavior definition does not count as referenced.
 

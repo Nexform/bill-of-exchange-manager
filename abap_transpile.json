@@ -4,7 +4,9 @@
     "/[^/]*boe_(onprem|wrap)[^/]*$",
     "/zbp_[^/]*$",
     "/zcl_boe_[^/]*_job\\.clas\\.[^/]*$",
-    "/[^/]*\\.dcls\\.[^/]*$"
+    "/[^/]*\\.dcls\\.[^/]*$",
+    "/z[rc]_[^/]*\\.ddls\\.[^/]*$",
+    "/zi_boe[^/]*text\\.ddls\\.[^/]*$"
   ],
   "output_folder": "output",
   "libs": [
