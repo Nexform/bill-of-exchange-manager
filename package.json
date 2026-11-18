@@ -1,0 +1,21 @@
+{
+  "name": "bill-of-exchange-manager-onprem",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Bill of Exchange Manager for SAP S/4HANA Private Edition / on-premise - off-stack gate: abaplint per package",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "node tools/lint.mjs",
+    "lint:core": "node tools/lint.mjs core",
+    "lint:adapter": "node tools/lint.mjs adapter",
+    "lint:wrapper": "node tools/lint.mjs wrapper",
+    "lint:fix": "node tools/lint.mjs --fix",
+    "check": "npm run lint"
+  },
+  "devDependencies": {
+    "@abaplint/cli": "^2.120.109"
+  }
+}
