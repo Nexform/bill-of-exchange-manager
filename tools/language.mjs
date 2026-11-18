@@ -1,13 +1,15 @@
 // Checks the ABAP language version that abapGit serialized for every object in
-// src/: <UNICODE> of classes and interfaces, <ABAP_LANGUAGE_VERSION> of the
-// other object types; 5 = ABAP for Cloud Development.
+// src/: <UNICODE> of classes and interfaces, <ABAP_LANGUAGE_VERSION> or - for
+// behavior definitions, service definitions and service bindings -
+// <ABAP_LANGU_VERSION> of the other object types; 5 = ABAP for Cloud Development.
 //
 // Standard ABAP looks different in the two groups: a class or an interface says
-// <UNICODE>X, every other object simply has no <ABAP_LANGUAGE_VERSION> (abapGit
-// does not write the initial value). For the object types known to carry the
-// element - domains, data elements, tables, CDS views, access controls - a file
-// without it is therefore Standard ABAP and a violation. Types that never carry
-// it (BDEF, DDLX, SRVD, SRVB, MSAG) cannot be checked here.
+// <UNICODE>X, every other object simply has no such element (abapGit does not
+// write the initial value). For the object types known to carry the element -
+// domains, data elements, tables, CDS views, access controls, behavior
+// definitions, service definitions and bindings - a file without it is therefore
+// Standard ABAP and a violation. Types that never carry it (DDLX, MSAG) cannot
+// be checked here.
 //
 // Every object except the wrapper (names containing BOE_WRAP) must be ABAP for
 // Cloud Development: the core because it also goes to S/4HANA Cloud Public
@@ -21,7 +23,7 @@ import { pathToFileURL } from "node:url";
 
 const CLOUD = "5";
 const SOURCE = /\.(clas|intf)\.xml$/i;
-const MARKED = /\.(doma|dtel|tabl|ddls|dcls)\.xml$/i;
+const MARKED = /\.(doma|dtel|tabl|ddls|dcls|bdef|srvd|srvb)\.xml$/i;
 const expected = `expected ABAP for Cloud Development (${CLOUD})`;
 
 export function cloudViolations(repository) {
@@ -35,7 +37,7 @@ export function cloudViolations(repository) {
       continue;
     }
     const xml = readFileSync(join(source, file), "utf8");
-    const versions = [...xml.matchAll(/<ABAP_LANGUAGE_VERSION>([^<]*)<\/ABAP_LANGUAGE_VERSION>/g)].map((match) => match[1]);
+    const versions = [...xml.matchAll(/<ABAP_LANGU(?:AGE)?_VERSION>([^<]*)<\/ABAP_LANGU(?:AGE)?_VERSION>/g)].map((match) => match[1]);
     const unicode = xml.match(/<UNICODE>([^<]*)<\/UNICODE>/)?.[1];
     if (SOURCE.test(file) && unicode !== CLOUD) {
       violations.push(`${file}: language version "${unicode ?? "none"}", ${expected}`);
