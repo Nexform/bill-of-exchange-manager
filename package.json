@@ -1,0 +1,23 @@
+{
+  "name": "bill-of-exchange-manager",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Bill of Exchange Manager for SAP S/4HANA Cloud Public Edition, Private Edition and on-premise - off-stack gate: abaplint, ABAP language versions, transpiled ABAP Unit tests of the core",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "node tools/lint.mjs",
+    "lint:fix": "node tools/lint.mjs --fix",
+    "language": "node tools/language.mjs",
+    "test": "node tools/test.mjs",
+    "check": "npm run lint && npm run language && npm test"
+  },
+  "devDependencies": {
+    "@abaplint/cli": "^2.120.109",
+    "@abaplint/database-sqlite": "^2.14.12",
+    "@abaplint/runtime": "^2.14.33",
+    "@abaplint/transpiler-cli": "^2.14.33"
+  }
+}
