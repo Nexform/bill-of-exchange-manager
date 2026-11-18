@@ -1,4 +1,4 @@
-name: abaplint
+name: Checks
 
 on:
   push:
@@ -16,9 +16,9 @@ concurrency:
 
 jobs:
   lint:
-    name: abaplint per package (core, adapter, wrapper)
+    name: abaplint per part + off-stack ABAP Unit (core)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -35,3 +35,6 @@ jobs:
 
       - name: Lint (abaplint)
         run: npm run lint
+
+      - name: Transpile & run unit tests (core)
+        run: npm test

@@ -1,32 +1,25 @@
-// Runs one abaplint configuration per part of the repository.
+// Runs one abaplint configuration per part of the package (see parts.mjs).
 //
-//   core     abaplint-core.json     ABAP Cloud, release 7.57, sees only src/core
-//   adapter  abaplint-adapter.json  ABAP Cloud, release 7.57, sees core + wrapper
+//   core     abaplint-core.json     ABAP Cloud, release 7.57; adapter and wrapper
+//                                   files are excluded, so a reference to them
+//                                   fails as "not found"
+//   adapter  abaplint-adapter.json  ABAP Cloud, release 7.57; the rest of src/ is
+//                                   loaded as a dependency
 //   wrapper  abaplint-wrapper.json  Standard ABAP, release 7.57
 //
-// The core configuration loads nothing but src/core, so any reference from the
-// core to an adapter or wrapper object fails as "not found": that is the check
-// that keeps the core movable to its own repository (and importable in Public
-// Edition) later.
-//
-// A part whose folder has no files yet is skipped, because abaplint fails on an
-// empty file list.
+// The core check keeps the core movable to its own repository (and importable in
+// Public Edition) later. A part without files yet is skipped, because abaplint
+// fails on an empty file list.
 //
 // Usage: node tools/lint.mjs [core|adapter|wrapper] [abaplint options, e.g. --fix]
 
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
+import { parts, sourceFiles, SOURCE } from "./parts.mjs";
 
 const require = createRequire(import.meta.url);
 const cli = join(dirname(require.resolve("@abaplint/cli/package.json")), "abaplint");
-
-const parts = [
-  { name: "core", config: "abaplint-core.json", folder: "src/core" },
-  { name: "adapter", config: "abaplint-adapter.json", folder: "src/adapter" },
-  { name: "wrapper", config: "abaplint-wrapper.json", folder: "src/wrapper" },
-];
 
 const args = process.argv.slice(2);
 const only = args[0] !== undefined && !args[0].startsWith("-") ? args.shift() : undefined;
@@ -36,14 +29,11 @@ if (selected.length === 0) {
   process.exit(2);
 }
 
-const hasFiles = (folder) =>
-  existsSync(folder) &&
-  readdirSync(folder, { recursive: true, withFileTypes: true }).some((entry) => entry.isFile());
-
+const files = sourceFiles().filter((file) => file !== "package.devc.xml");
 let failed = false;
 for (const part of selected) {
-  if (!hasFiles(part.folder)) {
-    console.log(`abaplint ${part.name}: skipped, ${part.folder}/ has no files yet`);
+  if (!files.some(part.matches)) {
+    console.log(`abaplint ${part.name}: skipped, no ${part.name} objects in ${SOURCE}/ yet`);
     continue;
   }
   console.log(`abaplint ${part.name}: ${part.config}`);

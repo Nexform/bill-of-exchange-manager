@@ -1,11 +1,20 @@
 {
   "global": {
-    "files": "/src/core/**/*.*",
+    "files": "/src/*.*",
     "skipGeneratedGatewayClasses": true,
     "skipGeneratedPersistentClasses": true,
-    "skipGeneratedFunctionGroups": true
+    "skipGeneratedFunctionGroups": true,
+    "exclude": [
+      "/[^/]*boe_(onprem|wrap)[^/]*$"
+    ]
   },
-  "dependencies": [],
+  "dependencies": [
+    {
+      "url": "https://github.com/abapedia/steampunk-2305-api",
+      "folder": "/deps",
+      "files": "/src/**/*.*"
+    }
+  ],
   "syntax": {
     "version": {
       "release": "v757",
@@ -235,11 +244,7 @@
         ".*\\.(g4ba|srvb|srvd|sush|susc|suso|auth)\\..*"
       ]
     },
-    "forbidden_void_type": {
-      "check": [
-        "^(?!Z|Y).*"
-      ]
-    },
+    "forbidden_void_type": false,
     "avoid_use": {
       "define": true,
       "statics": true,
