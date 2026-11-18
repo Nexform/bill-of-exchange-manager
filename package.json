@@ -3,15 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
-  "description": "Bill of Exchange Manager for SAP S/4HANA Private Edition / on-premise - off-stack gate: abaplint per part + transpiled ABAP Unit tests of the core",
+  "description": "Bill of Exchange Manager for SAP S/4HANA Private Edition / on-premise - off-stack gate: abaplint + transpiled ABAP Unit tests of the core",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "lint": "node tools/lint.mjs",
-    "lint:core": "node tools/lint.mjs core",
-    "lint:adapter": "node tools/lint.mjs adapter",
-    "lint:wrapper": "node tools/lint.mjs wrapper",
     "lint:fix": "node tools/lint.mjs --fix",
     "test": "node tools/test.mjs",
     "check": "npm run lint && npm test"

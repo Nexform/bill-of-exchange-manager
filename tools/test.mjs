@@ -7,16 +7,18 @@
 // core yet, the step is skipped.
 
 import { spawnSync } from "node:child_process";
-import { rmSync } from "node:fs";
+import { existsSync, readdirSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import { parts, sourceFiles } from "./parts.mjs";
 
 const require = createRequire(import.meta.url);
 const transpiler = join(dirname(require.resolve("@abaplint/transpiler-cli/package.json")), "abap_transpile");
-const core = parts.find((part) => part.name === "core");
 
-const testClasses = sourceFiles().filter((file) => file.endsWith(".clas.testclasses.abap") && core.matches(file) && !/^zbp_/i.test(file));
+// core = every object whose name contains neither BOE_ONPREM (adapter) nor BOE_WRAP (wrapper)
+const isCore = (file) => !/boe_(onprem|wrap)/i.test(file);
+const files = existsSync("src") ? readdirSync("src") : [];
+
+const testClasses = files.filter((file) => file.endsWith(".clas.testclasses.abap") && isCore(file) && !/^zbp_/i.test(file));
 if (testClasses.length === 0) {
   console.log("unit tests: skipped, no test class in the core yet");
   process.exit(0);

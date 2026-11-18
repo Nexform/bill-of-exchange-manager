@@ -49,7 +49,7 @@ objects form three parts, told apart by the object name:
 runtime, without a static reference. This keeps the core free of anything that
 exists only on-premise, so it can later move to its own repository and run in
 Public Edition. The name tokens make that move mechanical — every object without
-them belongs to the core — and the core check below enforces the boundary.
+them belongs to the core — and the [checks](#checks) enforce the boundary.
 
 The package mixes language versions: its default is *ABAP for Cloud Development*,
 and the wrapper objects are set to *Standard ABAP* one by one. The abapGit
@@ -95,28 +95,24 @@ standard, so that they also run off-stack.
 
 ## Checks
 
-`npm run check` runs abaplint once per part, then the core's unit tests off-stack.
-GitHub Actions runs the same on every pull request and every push to `main`.
+`npm run check` runs abaplint, then the core's unit tests off-stack. GitHub
+Actions runs the same on every pull request and every push to `main`.
 
 | Script | What it does |
 |---|---|
-| `npm run lint:core` | `abaplint-core.json`: the core as ABAP for Cloud Development on 7.57. Adapter and wrapper files are excluded, so a reference to them fails as *not found* |
-| `npm run lint:adapter` | `abaplint-adapter.json`: the adapter as ABAP for Cloud Development on 7.57; the rest of `src/` is loaded as a dependency and not linted |
-| `npm run lint:wrapper` | `abaplint-wrapper.json`: the wrapper as Standard ABAP on 7.57 (on-premise template) |
+| `npm run lint` | abaplint with `abaplint.json` (the on-premise template of `abap-llm-rulebook`) on all of `src/`, at release 7.57, the minimum release of this repository. `forbidden_identifier` enforces the core boundary: a core object that names a `BOE_ONPREM` or `BOE_WRAP` object fails |
 | `npm test` | transpiles the core with the abaplint transpiler (`abap_transpile.json`, libraries from [open-abap](https://github.com/open-abap)) and runs its ABAP Unit tests on Node.js, with an in-memory SQLite database |
 
-A part without objects, or a core without a test class, is skipped. The rules
-come from the `abap-llm-rulebook` templates; the release is 7.57 everywhere, the
-minimum release of this repository.
+An empty `src/`, or a core without a test class, is skipped.
 
-**What off-stack does not cover.** The adapter and the wrapper post through SAP FI
-and the behavior pools (`zbp_*`) need the RAP runtime: their tests run only in
-the system. The S/4HANA released APIs (`I_JournalEntryTP`, …) are in no public
-API dump, so the Cloud configurations load the BTP released API
-([abapedia](https://github.com/abapedia/steampunk-2305-api)) for what both share
-(`cl_abap_unit_assert`, `cl_bali_*`, XCO) and report unknown objects only in the
-own namespace. The release state of the SAP objects the core uses is checked by
-ATC in the system.
+**What the checks leave to the system.** abaplint reads every object as Standard
+ABAP: the ABAP Cloud restrictions of the core and the adapter are enforced by the
+syntax check in the system, which the code has passed before abapGit pushes it,
+and the release state of the SAP objects they use by ATC. The adapter and the
+wrapper post through SAP FI, and the behavior pools (`zbp_*`) need the RAP
+runtime: their tests run only in the system. The boundary check sees static
+references only; a lookup by name at runtime (`CREATE OBJECT … TYPE (name)`) is
+not a reference and is how the core finds its adapter.
 
 ## License
 

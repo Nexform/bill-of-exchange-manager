@@ -1,6 +1,6 @@
 {
   "global": {
-    "files": "/src/*boe_wrap*.*",
+    "files": "/src/**/*.*",
     "skipGeneratedGatewayClasses": true,
     "skipGeneratedPersistentClasses": true,
     "skipGeneratedFunctionGroups": true
@@ -278,6 +278,14 @@
       "describeLines": true,
       "exportToMemory": false,
       "exportToDatabase": false
+    },
+    "forbidden_identifier": {
+      "check": [
+        "boe_(onprem|wrap)"
+      ],
+      "exclude": [
+        "/[^/]*boe_(onprem|wrap)[^/]*$"
+      ]
     }
   }
 }
