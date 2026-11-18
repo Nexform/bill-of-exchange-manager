@@ -1,0 +1,78 @@
+@Metadata.layer: #CORE
+
+@UI.headerInfo: { typeName: 'Migration Run',
+                  typeNamePlural: 'Migration Runs',
+                  title: { type: #STANDARD, value: 'Description' },
+                  description: { type: #STANDARD, value: 'CompanyCode' } }
+
+@UI.presentationVariant: [ { sortOrder: [ { by: 'CreatedAt', direction: #DESC } ],
+                             visualizations: [ { type: #AS_LINEITEM } ] } ]
+
+annotate view ZC_BoEMigrationRun with
+{
+  @UI.facet: [ { id: 'Run',
+                 purpose: #STANDARD,
+                 type: #FIELDGROUP_REFERENCE,
+                 targetQualifier: 'Run',
+                 label: 'Run',
+                 position: 10 },
+               { id: 'File',
+                 purpose: #STANDARD,
+                 type: #FIELDGROUP_REFERENCE,
+                 targetQualifier: 'File',
+                 label: 'Migration File',
+                 position: 20 },
+               { id: 'Admin',
+                 purpose: #STANDARD,
+                 type: #FIELDGROUP_REFERENCE,
+                 targetQualifier: 'Admin',
+                 label: 'Administrative Data',
+                 position: 30 } ]
+  @UI.hidden: true
+  RunUUID;
+
+  @UI.fieldGroup: [ { qualifier: 'Run', position: 10 } ]
+  @UI.lineItem: [ { position: 10 } ]
+  Description;
+
+  @UI.fieldGroup: [ { qualifier: 'Run', position: 20 } ]
+  @UI.lineItem: [ { position: 20 } ]
+  @UI.selectionField: [ { position: 10 } ]
+  CompanyCode;
+
+  @UI.fieldGroup: [ { qualifier: 'Run', position: 30 } ]
+  @UI.lineItem: [ { position: 30 } ]
+  PostingDate;
+
+  @UI.fieldGroup: [ { qualifier: 'Run', position: 40 } ]
+  @UI.lineItem: [ { position: 40 } ]
+  @UI.selectionField: [ { position: 20 } ]
+  Status;
+
+  @UI.fieldGroup: [ { qualifier: 'File', position: 10 } ]
+  @UI.lineItem: [ { position: 50 } ]
+  FileContent;
+
+  @UI.hidden: true
+  FileMimeType;
+
+  @UI.hidden: true
+  FileName;
+
+  @UI.fieldGroup: [ { qualifier: 'Admin', position: 10 } ]
+  @UI.lineItem: [ { position: 60 } ]
+  CreatedBy;
+
+  @UI.fieldGroup: [ { qualifier: 'Admin', position: 20 } ]
+  @UI.lineItem: [ { position: 70 } ]
+  CreatedAt;
+
+  @UI.fieldGroup: [ { qualifier: 'Admin', position: 30 } ]
+  LastChangedBy;
+
+  @UI.fieldGroup: [ { qualifier: 'Admin', position: 40 } ]
+  LastChangedAt;
+
+  @UI.hidden: true
+  LocalLastChangedAt;
+}
