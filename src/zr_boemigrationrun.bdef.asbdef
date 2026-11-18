@@ -82,7 +82,9 @@ lock dependent by _Run
 authorization dependent by _Run
 etag master LocalLastChangedAt
 {
-  // a cheque is corrected in the file, not here: the check of the file deletes the cheques and creates them again
+  // a cheque is corrected in the file, not here: the check of the file deletes the cheques and creates them again.
+  // Internal, not absent: a draft-enabled entity needs update and delete for the draft handling itself
+  internal update;
   internal delete;
 
   association _Run { with draft; }
@@ -127,7 +129,10 @@ lock dependent by _Run
 authorization dependent by _Run
 etag master LocalLastChangedAt
 {
-  // no operation of its own: a message is created with its cheque and deleted with it
+  // a message is created with its cheque and deleted with it; nothing changes it from outside.
+  // Internal, not absent: a draft-enabled entity needs update and delete for the draft handling itself
+  internal update;
+  internal delete;
 
   association _Run { with draft; }
   association _Item { with draft; }
