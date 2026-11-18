@@ -330,7 +330,8 @@ CLASS lhc_run IMPLEMENTATION.
     READ ENTITIES OF zr_boemigrationrun IN LOCAL MODE
          ENTITY run BY \_items
          FIELDS ( itemuuid )
-         WITH runs
+         " a copy: the statement marks the requested fields in the table it is given, and a parameter is read-only
+         WITH CORRESPONDING #( runs )
          RESULT DATA(cheques).
 
     IF cheques IS INITIAL.
