@@ -5,7 +5,7 @@
    <DDLS>
     <DDLNAME>ZI_BOESEVERITYTEXT</DDLNAME>
     <DDLANGUAGE>E</DDLANGUAGE>
-    <DDTEXT>Severity of a message of the file check: text</DDTEXT>
+    <DDTEXT>Severity of a check message: text</DDTEXT>
     <SOURCE_TYPE>W</SOURCE_TYPE>
     <ABAP_LANGUAGE_VERSION>5</ABAP_LANGUAGE_VERSION>
    </DDLS>

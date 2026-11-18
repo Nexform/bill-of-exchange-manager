@@ -1,6 +1,7 @@
 // the texts of the fixed values of ZBOE_RUN_STATUS, repeated here: the released view on fixed values
 // (DDCDS_CUSTOMER_DOMAIN_VALUE_T) returned no rows for the domain on the development system
 @AccessControl.authorizationCheck: #NOT_REQUIRED
+@Metadata.ignorePropagatedAnnotations: true // mandatory for a view with a union
 @EndUserText.label: 'Status of a migration run: text'
 define view entity ZI_BoERunStatusText
   as select from I_Language

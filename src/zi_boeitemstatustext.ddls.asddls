@@ -2,7 +2,8 @@
 // (DDCDS_CUSTOMER_DOMAIN_VALUE_T) returned no rows for the domain on the development system
 // Criticality as the UI reads it: 0 neutral, 1 negative, 2 critical, 3 positive
 @AccessControl.authorizationCheck: #NOT_REQUIRED
-@EndUserText.label: 'Status of a cheque of a migration run: text'
+@Metadata.ignorePropagatedAnnotations: true // mandatory for a view with a union
+@EndUserText.label: 'Cheque status of a migration run: text'
 define view entity ZI_BoEItemStatusText
   as select from I_Language
 {
