@@ -1,6 +1,6 @@
 // no access control yet: authorizations are added as the last step before the first productive use
 @AccessControl.authorizationCheck: #NOT_REQUIRED
-@EndUserText.label: 'Message about a cheque of a migration run'
+@EndUserText.label: 'Message about a cheque of a run'
 define view entity ZR_BoEMigrationMessage
   as select from ztboe_msg
   association        to parent ZR_BoEMigrationItem as _Item         on $projection.ItemUUID = _Item.ItemUUID

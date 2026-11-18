@@ -5,7 +5,7 @@
    <DDLS>
     <DDLNAME>ZI_BOEITEMSTATUSTEXT</DDLNAME>
     <DDLANGUAGE>E</DDLANGUAGE>
-    <DDTEXT>Status of a cheque of a migration run: text</DDTEXT>
+    <DDTEXT>Cheque status of a migration run: text</DDTEXT>
     <SOURCE_TYPE>W</SOURCE_TYPE>
     <ABAP_LANGUAGE_VERSION>5</ABAP_LANGUAGE_VERSION>
    </DDLS>
