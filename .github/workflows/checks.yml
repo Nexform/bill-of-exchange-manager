@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   lint:
-    name: abaplint per part + off-stack ABAP Unit (core)
+    name: abaplint + off-stack ABAP Unit (core)
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
