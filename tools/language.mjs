@@ -2,6 +2,13 @@
 // src/: <UNICODE> of classes and interfaces, <ABAP_LANGUAGE_VERSION> of the
 // other object types; 5 = ABAP for Cloud Development.
 //
+// Standard ABAP looks different in the two groups: a class or an interface says
+// <UNICODE>X, every other object simply has no <ABAP_LANGUAGE_VERSION> (abapGit
+// does not write the initial value). For the object types known to carry the
+// element - domains, data elements, tables, CDS views, access controls - a file
+// without it is therefore Standard ABAP and a violation. Types that never carry
+// it (BDEF, DDLX, SRVD, SRVB, MSAG) cannot be checked here.
+//
 // Every object except the wrapper (names containing BOE_WRAP) must be ABAP for
 // Cloud Development: the core because it also goes to S/4HANA Cloud Public
 // Edition (branch public), the adapter because it is ABAP Cloud by design.
@@ -13,6 +20,9 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const CLOUD = "5";
+const SOURCE = /\.(clas|intf)\.xml$/i;
+const MARKED = /\.(doma|dtel|tabl|ddls|dcls)\.xml$/i;
+const expected = `expected ABAP for Cloud Development (${CLOUD})`;
 
 export function cloudViolations(repository) {
   const source = join(repository, "src");
@@ -27,10 +37,12 @@ export function cloudViolations(repository) {
     const xml = readFileSync(join(source, file), "utf8");
     const versions = [...xml.matchAll(/<ABAP_LANGUAGE_VERSION>([^<]*)<\/ABAP_LANGUAGE_VERSION>/g)].map((match) => match[1]);
     const unicode = xml.match(/<UNICODE>([^<]*)<\/UNICODE>/)?.[1];
-    if (/\.(clas|intf)\.xml$/i.test(file) && unicode !== CLOUD) {
-      violations.push(`${file}: language version "${unicode ?? "none"}", expected ABAP for Cloud Development (${CLOUD})`);
+    if (SOURCE.test(file) && unicode !== CLOUD) {
+      violations.push(`${file}: language version "${unicode ?? "none"}", ${expected}`);
     } else if (versions.some((version) => version !== CLOUD)) {
-      violations.push(`${file}: language version "${versions.find((version) => version !== CLOUD)}", expected ABAP for Cloud Development (${CLOUD})`);
+      violations.push(`${file}: language version "${versions.find((version) => version !== CLOUD)}", ${expected}`);
+    } else if (MARKED.test(file) && versions.length === 0) {
+      violations.push(`${file}: no language version, which is how Standard ABAP is serialized, ${expected}`);
     }
   }
   return violations;

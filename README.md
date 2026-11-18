@@ -1,5 +1,5 @@
 > **Branch `public` — generated, do not commit here.** GitHub Actions builds it
-> from `main` (commit `b56e0f9`) for SAP S/4HANA Cloud Public Edition:
+> from `main` (commit `1d2ad27`) for SAP S/4HANA Cloud Public Edition:
 > the core only, without the on-premise adapter and wrapper. Changes go to `main`.
 
 # Bill of Exchange Manager
@@ -155,7 +155,7 @@ to `main`, and builds branch `public` after every merge.
 | Script | What it does |
 |---|---|
 | `npm run lint` | abaplint with `abaplint.json` (the on-premise template of `abap-llm-rulebook`) on all of `src/`, at release 7.57, the minimum release of this repository. `forbidden_identifier` enforces the core boundary: a core object that names a `BOE_ONPREM` or `BOE_WRAP` object fails |
-| `npm run language` | every object except the wrapper must be serialized as ABAP for Cloud Development (`<UNICODE>5` for classes and interfaces, `<ABAP_LANGUAGE_VERSION>5` for the rest): a core object set to Standard ABAP by mistake would not import into Public Edition |
+| `npm run language` | every object except the wrapper must be serialized as ABAP for Cloud Development (`<UNICODE>5` for classes and interfaces, `<ABAP_LANGUAGE_VERSION>5` for the rest): a core object set to Standard ABAP by mistake would not import into Public Edition. A domain, data element, table, CDS view or access control without the element fails too - that is how abapGit serializes Standard ABAP for them. Behavior definitions, metadata extensions, service definitions and bindings and message classes carry no language version in their file and are not covered |
 | `npm test` | transpiles the core with the abaplint transpiler (`abap_transpile.json`, libraries from [open-abap](https://github.com/open-abap)) and runs its ABAP Unit tests on Node.js, with an in-memory SQLite database |
 
 An empty `src/`, or a core without a test class, is skipped.
