@@ -19,7 +19,7 @@ with abapGit.
 
 # Table of contents
 1. [Requirements](#requirements)
-2. [Repository layout](#repository-layout)
+2. [Package and parts](#package-and-parts)
 3. [Installation](#installation)
 4. [Development](#development)
 5. [Checks](#checks)
@@ -34,77 +34,89 @@ with abapGit.
 - [abapGit](https://abapgit.org) in the target system (standalone or developer
   version).
 
-## Repository layout
+## Package and parts
 
-abapGit folder logic `PREFIX`, starting folder `/src/`:
+Everything is in **one package, `Z_BOE_ONPREM`** (`src/`, no sub-packages). Its
+objects form three parts, told apart by the object name:
 
-| Folder | Package | ABAP language version | Content |
+| Part | Object name contains | ABAP language version | Content |
 |---|---|---|---|
-| `src/` | `Z_BOE_ONPREM` | — | root package, no objects of its own |
-| `src/core/` | `Z_BOE_ONPREM_CORE` | ABAP for Cloud Development | the core: RAP business objects, migration workbench, `ZIF_BOE_POSTING` |
-| `src/adapter/` | `Z_BOE_ONPREM_ADAPTER` | ABAP for Cloud Development | Private Edition / on-premise posting adapter: implements `ZIF_BOE_POSTING` by calling the wrapper |
-| `src/wrapper/` | `Z_BOE_ONPREM_WRAPPER` | Standard ABAP | classic wrapper around the posting, released (contract C1) for use in ABAP Cloud |
+| core | neither token below | ABAP for Cloud Development | RAP business objects, migration workbench, `ZIF_BOE_POSTING` |
+| adapter | `BOE_ONPREM` — e.g. `ZCL_BOE_ONPREM_POSTING` | ABAP for Cloud Development | Private Edition / on-premise posting adapter: implements `ZIF_BOE_POSTING` by calling the wrapper |
+| wrapper | `BOE_WRAP` — e.g. `ZCL_BOE_WRAP_POSTING`, function group `ZBOE_WRAP` | Standard ABAP | classic wrapper around the posting, released (contract C1) for use in ABAP Cloud |
 
 **The core never references the adapter or the wrapper.** It finds the adapter at
 runtime, without a static reference. This keeps the core free of anything that
-exists only on-premise, so it can move to its own repository and run in Public
-Edition. The core check below enforces it.
+exists only on-premise, so it can later move to its own repository and run in
+Public Edition. The name tokens make that move mechanical — every object without
+them belongs to the core — and the core check below enforces the boundary.
 
-The repository mixes language versions, so the abapGit repository setting
-*ABAP Language Version* stays empty: every object keeps its own.
+The package mixes language versions: its default is *ABAP for Cloud Development*,
+and the wrapper objects are set to *Standard ABAP* one by one. The abapGit
+repository setting *ABAP Language Version* stays empty, so every object keeps its
+own.
 
 ## Installation
 
 1. Make sure the system can reach GitHub from abapGit (SSL certificates for
    `github.com` in `STRUST`, and a personal access token while the repository is
    private).
-2. Create the root package `Z_BOE_ONPREM` (transportable).
+2. Create the package `Z_BOE_ONPREM` (transportable).
 3. In abapGit: **New Online** → this repository's URL → package `Z_BOE_ONPREM` →
-   **Pull**. abapGit creates the sub-packages from the repository.
-4. Check that the wrapper objects in `Z_BOE_ONPREM_WRAPPER` are released for use in
-   ABAP Cloud (API state, contract C1). If your abapGit version did not carry the
+   **Pull**.
+4. Check that the wrapper objects (`*BOE_WRAP*`) are released for use in ABAP
+   Cloud (API state, contract C1). If your abapGit version did not carry the
    release state, set it in ADT; otherwise the adapter does not activate.
 
 Where the customer does not allow abapGit, pull into one system (for example a
-sandbox) and move the packages with an ordinary transport.
+sandbox) and move the package with an ordinary transport.
 
 ## Development
 
-1. In an S/4HANA 2022 system, create the packages of the
-   [layout](#repository-layout) with the ABAP language version shown for each.
-   Develop in the system at the minimum release: an object that uses a newer
-   feature does not import into an older one.
-2. Link the root package to this repository in abapGit (developer version) and
-   push to a branch; open a pull request against `main`.
+1. In an S/4HANA 2022 system, create `Z_BOE_ONPREM` with ABAP language version
+   *ABAP for Cloud Development*. Develop at the minimum release: an object that
+   uses a newer feature does not import into an older one.
+2. Link the package to this repository in abapGit (developer version), push to a
+   branch and open a pull request against `main`.
 3. Before the pull request, run the checks locally:
 
        npm ci
-       npm run lint
+       npm run check
 
 Naming follows the `abap-llm-rulebook` baseline: namespace `Z`, domain token
-`BOE` — packages `Z_BOE_<SUB>`, tables `ZTBOE_<entity>`, message class `ZBOE`,
-exception classes `ZCX_BOE_<purpose>`; type-coded names (`ZCL_`, `ZIF_`, `ZR_`,
-`ZC_`, …) stay as they are.
+`BOE` — tables `ZTBOE_<entity>`, message class `ZBOE`, exception classes
+`ZCX_BOE_<purpose>`; type-coded names (`ZCL_`, `ZIF_`, `ZR_`, `ZC_`, …) stay as
+they are. On top of that, adapter and wrapper objects carry their token
+(`BOE_ONPREM`, `BOE_WRAP`), and no core object may contain either.
+
+Core logic is written to be testable without the system: ABAP Unit tests with
+test doubles for `ZIF_BOE_POSTING` and for every other dependency on SAP
+standard, so that they also run off-stack.
 
 ## Checks
 
-`npm run lint` runs abaplint once per package, each file under exactly one
-configuration. The rules come from the `abap-llm-rulebook` templates; the release
-is 7.57 everywhere, the minimum release of this repository.
+`npm run check` runs abaplint once per part, then the core's unit tests off-stack.
+GitHub Actions runs the same on every pull request and every push to `main`.
 
-| Script | Configuration | Checks |
-|---|---|---|
-| `npm run lint:core` | `abaplint-core.json` | `src/core/` as ABAP for Cloud Development on 7.57. Loads **only** the core: a reference to an adapter or wrapper object fails as *not found* |
-| `npm run lint:adapter` | `abaplint-adapter.json` | `src/adapter/` as ABAP for Cloud Development on 7.57; core and wrapper are loaded as dependencies and not linted |
-| `npm run lint:wrapper` | `abaplint-wrapper.json` | `src/wrapper/` as Standard ABAP on 7.57 (on-premise template) |
+| Script | What it does |
+|---|---|
+| `npm run lint:core` | `abaplint-core.json`: the core as ABAP for Cloud Development on 7.57. Adapter and wrapper files are excluded, so a reference to them fails as *not found* |
+| `npm run lint:adapter` | `abaplint-adapter.json`: the adapter as ABAP for Cloud Development on 7.57; the rest of `src/` is loaded as a dependency and not linted |
+| `npm run lint:wrapper` | `abaplint-wrapper.json`: the wrapper as Standard ABAP on 7.57 (on-premise template) |
+| `npm test` | transpiles the core with the abaplint transpiler (`abap_transpile.json`, libraries from [open-abap](https://github.com/open-abap)) and runs its ABAP Unit tests on Node.js, with an in-memory SQLite database |
 
-A package whose folder is still empty is skipped. GitHub Actions runs the same
-script on every pull request and every push to `main`.
+A part without objects, or a core without a test class, is skipped. The rules
+come from the `abap-llm-rulebook` templates; the release is 7.57 everywhere, the
+minimum release of this repository.
 
-Unlike the rulebook's Cloud template, the two Cloud configurations report unknown
-objects only in the own namespace: the S/4HANA released APIs the core uses
-(`I_JournalEntryTP`, …) are in no public API dump, so SAP objects stay unchecked
-off-stack. ATC in the system covers them.
+**What off-stack does not cover.** The adapter and the wrapper post through SAP FI
+and the behavior pools (`zbp_*`) need the RAP runtime: their tests run only in
+the system. The S/4HANA released APIs (`I_JournalEntryTP`, …) are in no public
+API dump, so the Cloud configurations load the BTP released API
+([abapedia](https://github.com/abapedia/steampunk-2305-api)) for what both share
+(`cl_abap_unit_assert`, `cl_bali_*`, XCO) and report unknown objects only in the
+own namespace. The release state of the SAP objects the core uses is checked by
+ATC in the system.
 
 ## License
 

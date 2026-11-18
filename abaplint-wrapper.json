@@ -1,6 +1,6 @@
 {
   "global": {
-    "files": "/src/wrapper/**/*.*",
+    "files": "/src/*boe_wrap*.*",
     "skipGeneratedGatewayClasses": true,
     "skipGeneratedPersistentClasses": true,
     "skipGeneratedFunctionGroups": true

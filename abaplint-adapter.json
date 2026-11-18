@@ -1,18 +1,19 @@
 {
   "global": {
-    "files": "/src/adapter/**/*.*",
+    "files": "/src/*boe_onprem*.*",
     "skipGeneratedGatewayClasses": true,
     "skipGeneratedPersistentClasses": true,
     "skipGeneratedFunctionGroups": true
   },
   "dependencies": [
     {
-      "folder": "/src/core",
-      "files": "/**/*.*"
+      "url": "https://github.com/abapedia/steampunk-2305-api",
+      "folder": "/deps",
+      "files": "/src/**/*.*"
     },
     {
-      "folder": "/src/wrapper",
-      "files": "/**/*.*"
+      "folder": "/src",
+      "files": "/*.*"
     }
   ],
   "syntax": {
@@ -244,11 +245,7 @@
         ".*\\.(g4ba|srvb|srvd|sush|susc|suso|auth)\\..*"
       ]
     },
-    "forbidden_void_type": {
-      "check": [
-        "^(?!Z|Y).*"
-      ]
-    },
+    "forbidden_void_type": false,
     "avoid_use": {
       "define": true,
       "statics": true,
