@@ -1,29 +1,41 @@
-# Bill of Exchange Manager — Private Edition / on-premise
+# Bill of Exchange Manager
 
 > **Status: pre-release.** Phase 0 (validation) and the first design of the core
 > are in progress. There is no code in `src/` yet; nothing here is ready to install
 > in a customer system.
 
 A clean-core tool for **cheques and bills of exchange** (επιταγές, συναλλαγματικές)
-in SAP S/4HANA, built for the Greek market: a migration workbench that replaces
-BDC-based cheque migration (F-36 / FB01 with special G/L *W*) and a register for
-the cheque lifecycle — portfolio, endorsement, deposit for collection or as
-collateral, collection, dishonour.
+in **SAP S/4HANA Cloud Public Edition, Private Edition and on-premise**, built for
+the Greek market: a migration workbench that replaces manual or BDC-based cheque
+migration (F-36 / FB01 with special G/L *W*) and a register for the cheque
+lifecycle — portfolio, endorsement, deposit for collection or as collateral,
+collection, dishonour.
 
-Users work in one RAP / Fiori Elements application. The posting itself sits
-behind an interface, so the same application can later run in S/4HANA Cloud
-Public Edition with a different posting adapter.
-
-This repository is the **Private Edition / on-premise** delivery. It is installed
-with abapGit.
+Users work in one RAP / Fiori Elements application, the same in every edition.
+Only the posting differs: it sits behind an interface (`ZIF_BOE_POSTING`) with
+one adapter per edition.
 
 # Table of contents
-1. [Requirements](#requirements)
-2. [Package and parts](#package-and-parts)
-3. [Installation](#installation)
-4. [Development](#development)
-5. [Checks](#checks)
-6. [License](#license)
+1. [Editions](#editions)
+2. [Requirements](#requirements)
+3. [Package and parts](#package-and-parts)
+4. [Installation](#installation)
+5. [Development](#development)
+6. [Checks](#checks)
+7. [License](#license)
+
+## Editions
+
+| Edition | Delivery | Posting | Status |
+|---|---|---|---|
+| S/4HANA Cloud **Private Edition** and **on-premise** (2022+) | **this repository**, installed with abapGit | adapter (`BOE_ONPREM`) calling a classic wrapper (`BOE_WRAP`) that posts with special G/L *W* | first — in design |
+| S/4HANA Cloud **Public Edition** | the core in its own repository, `bill-of-exchange-manager` (ABAP Cloud only), plus a Public Edition adapter | released APIs only; the supported posting route is being validated (Phase 0) | planned |
+
+The core is written for both from the start: ABAP for Cloud Development, released
+APIs only, no reference to anything on-premise. While the Private Edition
+delivery is built, the core lives here; once Public Edition is confirmed, it
+moves to `bill-of-exchange-manager` and this repository keeps the adapter and
+the wrapper.
 
 ## Requirements
 
@@ -48,7 +60,7 @@ objects form three parts, told apart by the object name:
 **The core never references the adapter or the wrapper.** It finds the adapter at
 runtime, without a static reference. This keeps the core free of anything that
 exists only on-premise, so it can later move to its own repository and run in
-Public Edition. The name tokens make that move mechanical — every object without
+Public Edition (see [Editions](#editions)). The name tokens make that move mechanical — every object without
 them belongs to the core — and the [checks](#checks) enforce the boundary.
 
 The package mixes language versions: its default is *ABAP for Cloud Development*,
