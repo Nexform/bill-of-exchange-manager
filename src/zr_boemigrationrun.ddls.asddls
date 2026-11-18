@@ -1,0 +1,29 @@
+@AccessControl.authorizationCheck: #CHECK
+@EndUserText.label: 'Bill of exchange migration run'
+define root view entity ZR_BoEMigrationRun
+  as select from ztboe_run
+{
+  key run_uuid              as RunUUID,
+      description           as Description,
+      company_code          as CompanyCode,
+      posting_date          as PostingDate,
+      status                as Status,
+      @Semantics.largeObject: { mimeType: 'FileMimeType',
+                                fileName: 'FileName',
+                                acceptableMimeTypes: [ 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ], // .xlsx
+                                contentDispositionPreference: #ATTACHMENT }
+      file_content          as FileContent,
+      @Semantics.mimeType: true
+      file_mime_type        as FileMimeType,
+      file_name             as FileName,
+      @Semantics.user.createdBy: true
+      created_by            as CreatedBy,
+      @Semantics.systemDateTime.createdAt: true
+      created_at            as CreatedAt,
+      @Semantics.user.lastChangedBy: true
+      last_changed_by       as LastChangedBy,
+      @Semantics.systemDateTime.lastChangedAt: true                // total etag
+      last_changed_at       as LastChangedAt,
+      @Semantics.systemDateTime.localInstanceLastChangedAt: true   // etag master
+      local_last_changed_at as LocalLastChangedAt
+}

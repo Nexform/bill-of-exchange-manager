@@ -1,0 +1,5 @@
+@EndUserText.label: 'Bill of exchange migration runs'
+@ObjectModel.leadingEntity.name: 'ZC_BoEMigrationRun'
+define service ZSD_BoEMigrationRun {
+  expose ZC_BoEMigrationRun as MigrationRun;
+}
