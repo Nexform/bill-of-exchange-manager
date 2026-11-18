@@ -2,12 +2,14 @@ managed implementation in class zbp_r_boemigrationrun unique;
 strict ( 2 );
 with draft;
 
+// authorizations are added as the last step before the first productive use; until then the
+// global authorization check of the behavior pool grants every operation
 define behavior for ZR_BoEMigrationRun alias Run
 persistent table ztboe_run
 draft table ztboe_run_d
 lock master
 total etag LastChangedAt
-authorization master ( global, instance )
+authorization master ( global )
 etag master LocalLastChangedAt
 {
   create;
@@ -21,7 +23,7 @@ etag master LocalLastChangedAt
   // a new run starts open; from then on only the processing of the run moves the status
   determination setInitialStatus on modify { create; }
 
-  // every bill of the run is posted in this company code, so the user must be allowed to post there
+  // every bill of the run is posted in this company code
   validation validateCompanyCode on save { create; field CompanyCode; }
 
   // the posting date of the run is the posting date of every document it creates

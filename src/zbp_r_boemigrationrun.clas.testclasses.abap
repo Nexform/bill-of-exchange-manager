@@ -1,61 +1,17 @@
 *"* use this source file for your ABAP unit test classes
 
-"! <p class="shorttext" lang="EN">Authorization double: one company code is allowed</p>
-"! Stub of {@link zif_boe_authorization}. A test changes the public attributes
-"! to describe the user it needs.
-CLASS ltd_authorization DEFINITION FINAL FOR TESTING.
-  PUBLIC SECTION.
-    INTERFACES zif_boe_authorization.
-
-    "! Answer to the question whether the user may create runs at all.
-    DATA create_allowed TYPE abap_bool VALUE abap_true.
-    "! The one company code the user may post in.
-    DATA company_code   TYPE zboe_company_code VALUE 'GR01'.
-ENDCLASS.
-
-
-CLASS ltd_authorization IMPLEMENTATION.
-  METHOD zif_boe_authorization~is_create_allowed.
-    result = create_allowed.
-  ENDMETHOD.
-
-  METHOD zif_boe_authorization~is_change_allowed.
-    result = xsdbool( company_code = me->company_code ).
-  ENDMETHOD.
-ENDCLASS.
-
-
 "! <p class="shorttext" lang="EN">CDS and draft table doubles for the tests of the run</p>
 "! READ ENTITIES is served through the CDS entity, so the entity is doubled
 "! with its base dependencies, which doubles ZTBOE_RUN as well. The draft table
 "! is declared in the behavior definition and needs a double of its own.
 CLASS lth_run_doubles DEFINITION FINAL FOR TESTING.
   PUBLIC SECTION.
-    TYPES runs TYPE STANDARD TABLE OF ztboe_run WITH EMPTY KEY.
-
-    "! Key of the run that {@link lth_run_doubles.METH:run} builds.
-    CONSTANTS run_uuid TYPE sysuuid_x16 VALUE '11111111111111111111111111111111'.
-
     "! Creates both doubles once; further calls do nothing.
     CLASS-METHODS create.
     "! Destroys both doubles.
     CLASS-METHODS destroy.
     "! Empties both doubles - called in every setup.
     CLASS-METHODS clear.
-
-    "! Inserts rows as active, saved runs.
-    "!
-    "! @parameter rows | Rows for the double of ZTBOE_RUN
-    CLASS-METHODS given_active
-      IMPORTING rows TYPE runs.
-
-    "! Builds one open run.
-    "!
-    "! @parameter company_code | Company code of the run
-    "! @parameter result       | Row ready for given_active
-    CLASS-METHODS run
-      IMPORTING company_code  TYPE zboe_company_code DEFAULT 'GR01'
-      RETURNING VALUE(result) TYPE ztboe_run.
 
   PRIVATE SECTION.
     CLASS-DATA cds_environment   TYPE REF TO if_cds_test_environment.
@@ -91,22 +47,10 @@ CLASS lth_run_doubles IMPLEMENTATION.
     cds_environment->clear_doubles( ).
     draft_environment->clear_doubles( ).
   ENDMETHOD.
-
-  METHOD given_active.
-    cds_environment->insert_test_data( rows ).
-  ENDMETHOD.
-
-  METHOD run.
-    result = VALUE #( run_uuid     = run_uuid
-                      description  = 'Cutover'
-                      company_code = company_code
-                      posting_date = '20261231'
-                      status       = zif_boe_migration=>run_status-open ).
-  ENDMETHOD.
 ENDCLASS.
 
 
-"! <p class="shorttext" lang="EN">The run through EML: status, header checks, instance authorization</p>
+"! <p class="shorttext" lang="EN">The run through EML: initial status and header checks</p>
 "! Drives the business object the way a consumer does, so that the wiring of
 "! the behavior definition is tested together with the handler.
 "! @testing BDEF:ZR_BoEMigrationRun
@@ -122,10 +66,7 @@ CLASS ltc_run DEFINITION FINAL
       BEGIN OF message,
         company_code_missing TYPE symsgno VALUE '030',
         posting_date_missing TYPE symsgno VALUE '031',
-        company_code_denied  TYPE symsgno VALUE '032',
       END OF message.
-
-    DATA authorization TYPE REF TO ltd_authorization.
 
     CLASS-METHODS class_setup.
     CLASS-METHODS class_teardown.
@@ -156,11 +97,8 @@ CLASS ltc_run DEFINITION FINAL
 
     METHODS given_valid_run_then_saved     FOR TESTING.
     METHODS given_no_company_then_rejected FOR TESTING.
-    METHODS given_other_company_then_rej   FOR TESTING.
     METHODS given_no_date_then_rejected    FOR TESTING.
     METHODS when_created_then_status_open  FOR TESTING.
-    METHODS given_own_run_then_changeable  FOR TESTING.
-    METHODS given_other_run_then_no_change FOR TESTING.
 
 ENDCLASS.
 
@@ -177,13 +115,10 @@ CLASS ltc_run IMPLEMENTATION.
 
   METHOD setup.
     lth_run_doubles=>clear( ).
-    authorization = NEW #( ).
-    lcl_run_factory=>inject_authorization( authorization ).
   ENDMETHOD.
 
   METHOD teardown.
     ROLLBACK ENTITIES.
-    lcl_run_factory=>inject_authorization( VALUE #( ) ).
   ENDMETHOD.
 
   METHOD create_and_save.
@@ -204,7 +139,7 @@ CLASS ltc_run IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD assert_message.
-    DATA found TYPE abap_bool.
+    DATA(found) = abap_false.
 
     LOOP AT reported-run INTO DATA(entry).
       " entries that only clear a state area carry no message object
@@ -238,20 +173,6 @@ CLASS ltc_run IMPLEMENTATION.
                                              msg = `A run without a company code must be rejected` ).
     assert_message( reported = reported
                     expected = message-company_code_missing ).
-  ENDMETHOD.
-
-  METHOD given_other_company_then_rej.
-    " ACT - the user of the double may post in GR01 only
-    create_and_save( EXPORTING company_code = 'DE01'
-                     IMPORTING failed       = DATA(failed)
-                               reported     = DATA(reported) ).
-
-    " ASSERT
-    cl_abap_unit_assert=>assert_not_initial(
-      act = failed-run
-      msg = `A run for a company code the user may not post in must be rejected` ).
-    assert_message( reported = reported
-                    expected = message-company_code_denied ).
   ENDMETHOD.
 
   METHOD given_no_date_then_rejected.
@@ -288,140 +209,6 @@ CLASS ltc_run IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals( act = runs[ 1 ]-status
                                         exp = zif_boe_migration=>run_status-open
                                         msg = `A new run starts in status open` ).
-  ENDMETHOD.
-
-  METHOD given_own_run_then_changeable.
-    " ARRANGE
-    lth_run_doubles=>given_active( VALUE #( ( lth_run_doubles=>run( 'GR01' ) ) ) ).
-
-    " ACT
-    MODIFY ENTITIES OF zr_boemigrationrun
-           ENTITY run
-           UPDATE FIELDS ( description )
-           WITH VALUE #( ( runuuid     = lth_run_doubles=>run_uuid
-                           description = 'Changed' ) )
-           FAILED DATA(failed).
-
-    " ASSERT
-    cl_abap_unit_assert=>assert_initial(
-      act = failed-run
-      msg = `A run of a company code the user may post in can be changed` ).
-  ENDMETHOD.
-
-  METHOD given_other_run_then_no_change.
-    " ARRANGE - the user of the double may post in GR01 only
-    lth_run_doubles=>given_active( VALUE #( ( lth_run_doubles=>run( 'DE01' ) ) ) ).
-
-    " ACT
-    MODIFY ENTITIES OF zr_boemigrationrun
-           ENTITY run
-           UPDATE FIELDS ( description )
-           WITH VALUE #( ( runuuid     = lth_run_doubles=>run_uuid
-                           description = 'Changed' ) )
-           FAILED DATA(failed).
-
-    " ASSERT
-    cl_abap_unit_assert=>assert_not_initial(
-      act = failed-run
-      msg = `A run of a company code the user may not post in must not be changed` ).
-    cl_abap_unit_assert=>assert_equals( act = failed-run[ 1 ]-%fail-cause
-                                        exp = if_abap_behv=>cause-unauthorized
-                                        msg = `The change must be refused for missing authorization` ).
-  ENDMETHOD.
-
-ENDCLASS.
-
-
-"! <p class="shorttext" lang="EN">Global authorization: who may create a run</p>
-"! Calls the handler method directly, with a double of the authorization check.
-"! @testing BDEF:ZR_BoEMigrationRun
-CLASS ltc_global_authorization DEFINITION FINAL
-  FOR TESTING RISK LEVEL HARMLESS DURATION SHORT.
-
-  PRIVATE SECTION.
-    TYPES auth_result    TYPE STRUCTURE FOR GLOBAL AUTHORIZATION RESULT zr_boemigrationrun\\run.
-    TYPES reported_early TYPE RESPONSE FOR REPORTED EARLY zr_boemigrationrun.
-
-    DATA cut           TYPE REF TO lhc_run.
-    DATA authorization TYPE REF TO ltd_authorization.
-
-    METHODS setup.
-    METHODS teardown.
-
-    METHODS given_may_post_then_create_ok FOR TESTING.
-    METHODS given_no_posting_then_denied  FOR TESTING.
-    METHODS when_not_asked_then_untouched FOR TESTING.
-
-ENDCLASS.
-
-
-CLASS ltc_global_authorization IMPLEMENTATION.
-
-  METHOD setup.
-    authorization = NEW #( ).
-    lcl_run_factory=>inject_authorization( authorization ).
-    CREATE OBJECT cut FOR TESTING.
-  ENDMETHOD.
-
-  METHOD teardown.
-    lcl_run_factory=>inject_authorization( VALUE #( ) ).
-  ENDMETHOD.
-
-  METHOD given_may_post_then_create_ok.
-    " ARRANGE
-    DATA result   TYPE auth_result.
-    DATA reported TYPE reported_early.
-
-    " ACT
-    cut->get_global_authorizations(
-      EXPORTING requested_authorizations = VALUE #( %create = if_abap_behv=>mk-on )
-      CHANGING  result                   = result
-                reported                 = reported ).
-
-    " ASSERT
-    cl_abap_unit_assert=>assert_equals( act = result-%create
-                                        exp = if_abap_behv=>auth-allowed
-                                        msg = `A user who may post in a company code may create a run` ).
-    cl_abap_unit_assert=>assert_initial( act = reported-run
-                                         msg = `A granted operation reports no message` ).
-  ENDMETHOD.
-
-  METHOD given_no_posting_then_denied.
-    " ARRANGE
-    DATA result   TYPE auth_result.
-    DATA reported TYPE reported_early.
-    authorization->create_allowed = abap_false.
-
-    " ACT
-    cut->get_global_authorizations(
-      EXPORTING requested_authorizations = VALUE #( %create = if_abap_behv=>mk-on )
-      CHANGING  result                   = result
-                reported                 = reported ).
-
-    " ASSERT
-    cl_abap_unit_assert=>assert_equals( act = result-%create
-                                        exp = if_abap_behv=>auth-unauthorized
-                                        msg = `A user who may not post anywhere must not create a run` ).
-    cl_abap_unit_assert=>assert_equals( act = lines( reported-run )
-                                        exp = 1
-                                        msg = `The refusal is explained by one message` ).
-  ENDMETHOD.
-
-  METHOD when_not_asked_then_untouched.
-    " ARRANGE
-    DATA result   TYPE auth_result.
-    DATA reported TYPE reported_early.
-    authorization->create_allowed = abap_false.
-
-    " ACT
-    cut->get_global_authorizations(
-      EXPORTING requested_authorizations = VALUE #( )
-      CHANGING  result                   = result
-                reported                 = reported ).
-
-    " ASSERT
-    cl_abap_unit_assert=>assert_initial( act = result
-                                         msg = `An operation the framework did not ask about gets no verdict` ).
   ENDMETHOD.
 
 ENDCLASS.
