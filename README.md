@@ -128,6 +128,10 @@ ones may be left out; the sheet and the column names must keep their names. Shee
 `Instructions` describes every column with an example. Company code and posting
 date belong to the run and are entered in the application.
 
+The file has to be a workbook as Excel saves it. A workbook written by another
+tool can store its texts in a way the XLSX library of the system does not read; the
+check then asks to open the file in Excel, save it and upload it again.
+
 In the application the file is uploaded to a run and checked with **Check File**:
 every row becomes a cheque of the run with status *Ready* or *Has errors*, and
 what is wrong with a row is listed with it. Errors are corrected in the file,
