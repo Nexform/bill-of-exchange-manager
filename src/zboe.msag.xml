@@ -44,18 +44,6 @@
      <MSGNR>031</MSGNR>
      <TEXT>Enter a posting date</TEXT>
     </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZBOE</ARBGB>
-     <MSGNR>032</MSGNR>
-     <TEXT>You are not authorized to post in company code &amp;1</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZBOE</ARBGB>
-     <MSGNR>033</MSGNR>
-     <TEXT>You are not authorized to create migration runs</TEXT>
-    </T100>
    </T100>
   </asx:values>
  </asx:abap>
