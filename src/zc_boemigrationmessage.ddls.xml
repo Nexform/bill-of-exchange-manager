@@ -5,7 +5,7 @@
    <DDLS>
     <DDLNAME>ZC_BOEMIGRATIONMESSAGE</DDLNAME>
     <DDLANGUAGE>E</DDLANGUAGE>
-    <DDTEXT>Message about a cheque of a migration run</DDTEXT>
+    <DDTEXT>Message about a cheque of a run</DDTEXT>
     <SOURCE_TYPE>P</SOURCE_TYPE>
     <ABAP_LANGUAGE_VERSION>5</ABAP_LANGUAGE_VERSION>
    </DDLS>

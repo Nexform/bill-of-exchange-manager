@@ -1,6 +1,6 @@
 // no access control yet: authorizations are added as the last step before the first productive use
 @AccessControl.authorizationCheck: #NOT_REQUIRED
-@EndUserText.label: 'Cheque of a bill of exchange migration run'
+@EndUserText.label: 'Cheque of a migration run'
 define view entity ZR_BoEMigrationItem
   as select from ztboe_item
   association        to parent ZR_BoEMigrationRun as _Run        on $projection.RunUUID = _Run.RunUUID

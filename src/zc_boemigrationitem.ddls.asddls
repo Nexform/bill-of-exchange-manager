@@ -1,6 +1,6 @@
 // no access control yet: authorizations are added as the last step before the first productive use
 @AccessControl.authorizationCheck: #NOT_REQUIRED
-@EndUserText.label: 'Cheque of a bill of exchange migration run'
+@EndUserText.label: 'Cheque of a migration run'
 @Metadata.allowExtensions: true
 define view entity ZC_BoEMigrationItem
   as projection on ZR_BoEMigrationItem
