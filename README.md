@@ -1,5 +1,5 @@
 > **Branch `public` — generated, do not commit here.** GitHub Actions builds it
-> from `main` (commit `aeb5004`) for SAP S/4HANA Cloud Public Edition:
+> from `main` (commit `aa4e610`) for SAP S/4HANA Cloud Public Edition:
 > the core only, without the on-premise adapter and wrapper. Changes go to `main`.
 
 # Bill of Exchange Manager
